@@ -3,6 +3,10 @@ import sys
 from loguru import logger
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram import Bot, Dispatcher
+from dotenv import load_dotenv
+
+
+load_dotenv()
 
 # Configure logging
 LOGGER_FORMAT = "<b><k><M>{level}</></></>\t|" \

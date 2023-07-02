@@ -17,6 +17,7 @@ loguru==0.7.0
 lxml==4.9.2
 magic-filter==1.0.9
 multidict==6.0.4
+python-dotenv==1.0.0
 pytz==2023.3
 pytz-deprecation-shim==0.1.0.post0
 requests==2.29.0
