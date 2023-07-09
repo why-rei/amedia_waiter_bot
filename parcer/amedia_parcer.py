@@ -1,3 +1,4 @@
+from typing import Type, List, Tuple
 from collections import namedtuple
 
 import requests
@@ -21,7 +22,7 @@ class AmediaParcer:
         soup = BeautifulSoup(resp.text, 'lxml')
         return soup
 
-    async def parce_anime(self, anime_url: str) -> namedtuple:
+    async def parce_anime(self, anime_url: str) -> Type[namedtuple]:
         soup = await self.get_page(anime_url)
         anime_base = soup.find('article', class_='film-wr')
 
@@ -47,16 +48,7 @@ class AmediaParcer:
 
         return Anime(int(anime_id), anime_name, anime_info, anime_desc, anime_photo_url, anime_url)
 
-    async def parce_home(self):
-        soup = await self.get_page(self.url)
-        list_animes = soup.find('div', class_='main-section-one').find_all('div', class_='section')
-
-        last_animes = await self.parce_last(list_animes[0])
-        today_animes = await self.parce_today(list_animes[1])
-
-        return last_animes, today_animes
-
-    async def parce_last(self, list_animes) -> namedtuple:
+    async def _parce_last(self, list_animes) -> List[namedtuple]:
         last_animes = list_animes.find_all('div', class_='newser')
         last_animes_list = []
         for anime_ in last_animes:
@@ -70,7 +62,7 @@ class AmediaParcer:
 
         return last_animes_list
 
-    async def parce_today(self, list_animes) -> namedtuple:
+    async def _parce_today(self, list_animes) -> List[namedtuple]:
         today_animes = list_animes.find_all('div', class_='newser')
         today_animes_list = []
         for anime_ in today_animes:
@@ -79,15 +71,55 @@ class AmediaParcer:
             anime_time = anime_.find_next('div', class_='animetitle1').find_next('div', class_='animedata').text
 
             TodayAnime = namedtuple('TodayAnime', 'url seria time')
-
             today_animes_list.append(TodayAnime(anime_url, anime_seria, anime_time))
 
         return today_animes_list
+
+    async def parce_home(self) -> Tuple[namedtuple, namedtuple]:
+        soup = await self.get_page(self.url)
+        list_animes = soup.find('div', class_='main-section-one').find_all('div', class_='section')
+
+        last_animes = await self._parce_last(list_animes[0])
+        today_animes = await self._parce_today(list_animes[1])
+
+        return last_animes, today_animes
+
+    async def parce_ants(self) -> List[namedtuple]:
+        ants_url = self.url + 'anime-kotoroe-skoro-vyydet/'
+        soup = await self.get_page(ants_url)
+
+        ants_animes = soup.find('div', class_='middle-wr').find_all('div', class_='c1-item')
+        ants_list = []
+        for anime in ants_animes:
+            anime_url = anime.find_next('a').get('href')
+
+            AntsAnime = namedtuple('AntsAnime', 'url')
+            ants_list.append(AntsAnime(anime_url))
+
+        return ants_list
+
+    async def parce_timetable(self) -> List[namedtuple]:
+        timetable_url = self.url + 'raspisanie-vyhoda-novyh-seriy.html'
+        soup = await self.get_page(timetable_url)
+
+        all_timetable = soup.find_all('div', class_='raspis2')
+
+        timetable_list = []
+        for day_animes in all_timetable:
+            day_animes_list = day_animes.find_all('div', class_='newser')
+            for anime in day_animes_list:
+                anime_url = anime.find_next('div', class_='animetitle1').find_next('a').get('href')
+                anime_day = all_timetable.index(day_animes)
+                anime_time = anime.find_next('div', class_='animetitle1').find_next('div', class_='newseriya').text
+
+                TimetableAnimes = namedtuple('TimetableAnimes', 'url day time')
+                timetable_list.append(TimetableAnimes(anime_url, anime_day, anime_time))
+
+        return timetable_list
 
 
 if __name__ == '__main__':
     import asyncio
 
-    a_url = 'https://amedia.online/1449-geny-iskusstvennogo-intellekta.html'
-    res = asyncio.run(AmediaParcer().parce_home())
-    print(res[1])
+    res = asyncio.run(AmediaParcer().parce_timetable())
+    print(res)
