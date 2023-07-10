@@ -48,8 +48,8 @@ class AmediaParcer:
 
         return Anime(int(anime_id), anime_name, anime_info, anime_desc, anime_photo_url, anime_url)
 
-    async def _parce_last(self, list_animes) -> List[namedtuple]:
-        last_animes = list_animes.find_all('div', class_='newser')
+    async def _parce_last(self, soup_section: BeautifulSoup) -> List[namedtuple]:
+        last_animes = soup_section.find_all('div', class_='newser')
         last_animes_list = []
         for anime_ in last_animes:
             anime_url = self.url + anime_.find_next('div', class_='animetitle1').find_next('a').get('href')
@@ -62,8 +62,8 @@ class AmediaParcer:
 
         return last_animes_list
 
-    async def _parce_today(self, list_animes) -> List[namedtuple]:
-        today_animes = list_animes.find_all('div', class_='newser')
+    async def _parce_today(self, soup_section: BeautifulSoup) -> List[namedtuple]:
+        today_animes = soup_section.find_all('div', class_='newser')
         today_animes_list = []
         for anime_ in today_animes:
             anime_url = self.url + anime_.find_next('div', class_='animetitle1').find_next('a').get('href')
@@ -77,10 +77,10 @@ class AmediaParcer:
 
     async def parce_home(self) -> Tuple[namedtuple, namedtuple]:
         soup = await self.get_page(self.url)
-        list_animes = soup.find('div', class_='main-section-one').find_all('div', class_='section')
+        soup_sections = soup.find('div', class_='main-section-one').find_all('div', class_='section')
 
-        last_animes = await self._parce_last(list_animes[0])
-        today_animes = await self._parce_today(list_animes[1])
+        last_animes = await self._parce_last(soup_sections[0])
+        today_animes = await self._parce_today(soup_sections[1])
 
         return last_animes, today_animes
 
@@ -95,7 +95,6 @@ class AmediaParcer:
 
             AntsAnime = namedtuple('AntsAnime', 'url')
             ants_list.append(AntsAnime(anime_url))
-
         return ants_list
 
     async def parce_timetable(self) -> List[namedtuple]:
@@ -121,5 +120,5 @@ class AmediaParcer:
 if __name__ == '__main__':
     import asyncio
 
-    res = asyncio.run(AmediaParcer().parce_timetable())
+    res = asyncio.run(AmediaParcer().parce_ants())
     print(res)
