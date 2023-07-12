@@ -28,8 +28,7 @@ class ParcerConn:
         pk, name, info, desc, photo_url, url = await self._get_anime(anime_url=anime_url)
         await PostgresController().add_anime(pk=pk, name=name, info=info, desc=desc, photo_url=photo_url, url=url)
 
-    async def _initialize_animes(self, animes: Sequence[Type[namedtuple]]):
-        animes_ids = await self._get_all_animes_ids(animes=animes)
+    async def _initialize_animes(self, animes: Sequence[Type[namedtuple]], animes_ids: List[int]):
         unidentified_indexes = await PostgresController().check_animes_ids(animes_ids=animes_ids)
         if unidentified_indexes:
             for index in unidentified_indexes:
@@ -37,22 +36,26 @@ class ParcerConn:
                 await self._push_anime(anime_url=anime_url)
 
     async def _allocation_animes(self, animes: Sequence[Type[namedtuple]]) -> None:
-        await self._initialize_animes(animes=animes)
+        animes_ids = await self._get_all_animes_ids(animes=animes)
+        await self._initialize_animes(animes=animes, animes_ids=animes_ids)
+        namedtuple_name = animes[0].__class__.__name__
 
-        for anime in animes:
-            namedtuple_name = anime.__class__.__name__
-            match namedtuple_name:
-                case 'LastAnime':
-                    # 1. Get all ids list
-                    # 2. Check ids list
-                    # 3. if not id -> add anime
-                    # 4. update last animes table
-                    pass
+        match namedtuple_name:
+            case 'LastAnime':
+                animes_ = []
+                for anime, anime_id in zip(animes, animes_ids):
+                    animes_.append((anime_id, anime.seria, anime.time))
+                await PostgresController().update_last_animes(animes=animes_)
+            case 'TodayAnime':
+                animes_ = []
+                for anime, anime_id in zip(animes, animes_ids):
+                    animes_.append((anime_id, anime.seria, anime.time))
+                await PostgresController().update_today_animes(animes=animes_)
 
     async def update_main(self):
         last_animes, today_animes = await AmediaParcer().parce_home()
-        await self._allocation_animes(last_animes)
-        # get(last, today) -> check & add(db animes) ->  db(last & today)
+        await self._allocation_animes(animes=last_animes)
+        await self._allocation_animes(animes=today_animes)
 
 
 if __name__ == '__main__':

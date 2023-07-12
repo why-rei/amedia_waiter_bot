@@ -23,24 +23,24 @@ class Animes(Base):
     photo_url = Column(String, nullable=True)
     link = Column(String, nullable=True)
 
-# class LastAnimes(Base):
-#     __tablename__ = 'lastanimes'
-#     id = Column(Integer, nullable=False, primary_key=True)
-#     anime_id = Column(Integer, ForeignKey('animes.id'))
-#     seria = Column(String, nullable=True)
-#     time = Column(String, nullable=True)
-#     anime = relationship('Animes', uselist=False, lazy='joined')
-#
-#
-# class TodayAnimes(Base):
-#     __tablename__ = 'todayanimes'
-#     id = Column(Integer, nullable=False, primary_key=True)
-#     anime_id = Column(Integer, ForeignKey('animes.id'))
-#     seria = Column(String, nullable=True)
-#     time = Column(String, nullable=True)
-#     anime = relationship('Animes', uselist=False, lazy='joined')
-#
-#
+
+class LastAnimes(Base):
+    __tablename__ = 'lastanimes'
+    id = Column(Integer, nullable=False, primary_key=True)
+    anime_id = Column(Integer, ForeignKey('animes.id'))
+    seria = Column(String, nullable=True)
+    time = Column(String, nullable=True)
+    anime = relationship('Animes', uselist=False, lazy='joined')
+
+
+class TodayAnimes(Base):
+    __tablename__ = 'todayanimes'
+    id = Column(Integer, nullable=False, primary_key=True)
+    anime_id = Column(Integer, ForeignKey('animes.id'))
+    seria = Column(String, nullable=True)
+    time = Column(String, nullable=True)
+    anime = relationship('Animes', uselist=False, lazy='joined')
+
 # class Timetable(Base):
 #     __tablename__ = 'timetable'
 #     id = Column(SmallInteger, primary_key=True, autoincrement=True)
