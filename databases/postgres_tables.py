@@ -41,14 +41,22 @@ class TodayAnimes(Base):
     time = Column(String, nullable=True)
     anime = relationship('Animes', uselist=False, lazy='joined')
 
-# class Timetable(Base):
-#     __tablename__ = 'timetable'
-#     id = Column(SmallInteger, primary_key=True, autoincrement=True)
-#     anime_id = Column(Integer, ForeignKey('animes.id'))
-#     day = Column(String, nullable=True)
-#     time = Column(String, nullable=True)
-#     anime = relationship('Animes', uselist=False, lazy='joined')
-#
+
+class Ants(Base):
+    __tablename__ = 'ants'
+    id = Column(Integer, nullable=False, primary_key=True)
+    anime_id = Column(Integer, ForeignKey('animes.id'))
+    anime = relationship('Animes', uselist=False, lazy='joined')
+
+
+class Timetable(Base):
+    __tablename__ = 'timetable'
+    id = Column(SmallInteger, primary_key=True, autoincrement=True)
+    anime_id = Column(Integer, ForeignKey('animes.id'))
+    day = Column(SmallInteger, nullable=True)
+    time = Column(String, nullable=True)
+    anime = relationship('Animes', uselist=False, lazy='joined')
+
 #
 # class Notice(Base):
 #     __tablename__ = 'notice'
@@ -67,7 +75,3 @@ class TodayAnimes(Base):
 #     anime = relationship('Animes', uselist=False, lazy='joined')
 #
 #
-# class Ants(Base):
-#     __tablename__ = 'ants'
-#     anime_id = Column(Integer, ForeignKey('animes.id'), primary_key=True)
-#     name = Column(String, nullable=True)

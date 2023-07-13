@@ -1,10 +1,9 @@
 from typing import List, Tuple
 
 from sqlalchemy import select, text
-from loguru import logger
 
 from databases.postgres_engine import engine, Async_Session
-from databases.postgres_tables import Base, Animes, LastAnimes, TodayAnimes
+from databases.postgres_tables import Base, Animes, LastAnimes, TodayAnimes, Ants, Timetable
 
 
 # All postgres tables create
@@ -54,6 +53,26 @@ class PostgresController:
                 today_animes.append(today_anime)
             await self._truncate_table(session=session, table_name=table_name)
             session.add_all(today_animes)
+
+    async def update_ants(self, animes_ids: List[int]) -> None:
+        async with Async_Session() as session, session.begin():
+            table_name = Ants.__name__.lower()
+            ants_animes = []
+            for pk in animes_ids:
+                ant_anime = Ants(anime_id=pk)
+                ants_animes.append(ant_anime)
+            await self._truncate_table(session=session, table_name=table_name)
+            session.add_all(ants_animes)
+
+    async def update_timetable(self, animes: List[Tuple[int, int, str]]) -> None:
+        async with Async_Session() as session, session.begin():
+            table_name = Timetable.__name__.lower()
+            timetable = []
+            for pk, day, time in animes:
+                timetable_anime = Timetable(anime_id=pk, day=day, time=time)
+                timetable.append(timetable_anime)
+            await self._truncate_table(session=session, table_name=table_name)
+            session.add_all(timetable)
 
 
 if __name__ == '__main__':

@@ -5,6 +5,7 @@ from parcer import AmediaParcer
 from databases.postgres_controller import PostgresController
 
 
+
 class ParcerConn:
 
     @staticmethod
@@ -51,15 +52,29 @@ class ParcerConn:
                 for anime, anime_id in zip(animes, animes_ids):
                     animes_.append((anime_id, anime.seria, anime.time))
                 await PostgresController().update_today_animes(animes=animes_)
+            case 'AntAnime':
+                await PostgresController().update_ants(animes_ids=animes_ids)
+            case 'TimetableAnimes':
+                animes_ = []
+                for anime, anime_id in zip(animes, animes_ids):
+                    animes_.append((anime_id, anime.day, anime.time))
+                await PostgresController().update_timetable(animes=animes_)
 
     async def update_main(self):
         last_animes, today_animes = await AmediaParcer().parce_home()
         await self._allocation_animes(animes=last_animes)
         await self._allocation_animes(animes=today_animes)
 
+    async def update_ants(self):
+        ants = await AmediaParcer().parce_ants()
+        await self._allocation_animes(animes=ants)
+
+    async def update_timetable(self):
+        timetable = await AmediaParcer().parce_timetable()
+        await self._allocation_animes(animes=timetable)
+
 
 if __name__ == '__main__':
     import asyncio
 
-    r = asyncio.run(ParcerConn().update_main())
-    print(r)
+    asyncio.run(ParcerConn().update_timetable())

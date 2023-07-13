@@ -93,8 +93,8 @@ class AmediaParcer:
         for anime in ants_animes:
             anime_url = anime.find_next('a').get('href')
 
-            AntsAnime = namedtuple('AntsAnime', 'url')
-            ants_list.append(AntsAnime(anime_url))
+            AntAnime = namedtuple('AntAnime', 'url')
+            ants_list.append(AntAnime(anime_url))
         return ants_list
 
     async def parce_timetable(self) -> List[Type[namedtuple]]:
