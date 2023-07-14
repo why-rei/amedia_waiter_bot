@@ -1,17 +1,18 @@
-from sqlalchemy import ForeignKey, Column, Boolean, Integer, String, DateTime, BigInteger, SmallInteger, Text
+from datetime import datetime
+
+from sqlalchemy import ForeignKey, Column, Integer, String, DateTime, BigInteger, SmallInteger, Text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
-from datetime import datetime
 
 Base = declarative_base()
 
 
-# class Users(Base):
-#     __tablename__ = 'users'
-#     id = Column(BigInteger(), primary_key=True, autoincrement=False)
-#     date_start = Column(DateTime(), default=datetime.now(), nullable=True)
-#     last_update = Column(DateTime(), nullable=True)
-#     fav_count = Column(SmallInteger, default=0, nullable=True)
+class Users(Base):
+    __tablename__ = 'users'
+    id = Column(BigInteger(), primary_key=True, autoincrement=False)
+    date_start = Column(DateTime(), default=datetime.now())
+    last_update = Column(DateTime(), default=datetime.now())
+    fav_count = Column(SmallInteger, default=0)
 
 
 class Animes(Base):

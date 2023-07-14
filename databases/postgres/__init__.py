@@ -1,0 +1,2 @@
+from .postgres_controller import PostgresAnimes
+from .postgres_controller import postgres_tables_create

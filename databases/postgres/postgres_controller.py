@@ -2,8 +2,8 @@ from typing import List, Tuple
 
 from sqlalchemy import select, text
 
-from databases.postgres_engine import engine, Async_Session
-from databases.postgres_tables import Base, Animes, LastAnimes, TodayAnimes, Ants, Timetable
+from .postgres_engine import engine, Async_Session
+from .postgres_tables import Base, Animes, LastAnimes, TodayAnimes, Ants, Timetable
 
 
 # All postgres tables create
@@ -13,7 +13,7 @@ async def postgres_tables_create() -> None:
     await engine.dispose()
 
 
-class PostgresController:
+class PostgresAnimes:
 
     @staticmethod
     async def check_animes_ids(animes_ids: List[int]) -> List[int]:
@@ -75,7 +75,5 @@ class PostgresController:
             session.add_all(timetable)
 
 
-if __name__ == '__main__':
-    import asyncio
-
-    asyncio.run(postgres_tables_create())
+class PostgresUsers:
+    pass

@@ -2,8 +2,7 @@ from collections import namedtuple
 from typing import Type, List, Sequence
 
 from parcer import AmediaParcer
-from databases.postgres_controller import PostgresController
-
+from databases.postgres_controller import PostgresAnimes
 
 
 class ParcerConn:
@@ -27,10 +26,10 @@ class ParcerConn:
 
     async def _push_anime(self, anime_url: str) -> None:
         pk, name, info, desc, photo_url, url = await self._get_anime(anime_url=anime_url)
-        await PostgresController().add_anime(pk=pk, name=name, info=info, desc=desc, photo_url=photo_url, url=url)
+        await PostgresAnimes().add_anime(pk=pk, name=name, info=info, desc=desc, photo_url=photo_url, url=url)
 
     async def _initialize_animes(self, animes: Sequence[Type[namedtuple]], animes_ids: List[int]):
-        unidentified_indexes = await PostgresController().check_animes_ids(animes_ids=animes_ids)
+        unidentified_indexes = await PostgresAnimes().check_animes_ids(animes_ids=animes_ids)
         if unidentified_indexes:
             for index in unidentified_indexes:
                 anime_url = animes[index].url
@@ -46,19 +45,19 @@ class ParcerConn:
                 animes_ = []
                 for anime, anime_id in zip(animes, animes_ids):
                     animes_.append((anime_id, anime.seria, anime.time))
-                await PostgresController().update_last_animes(animes=animes_)
+                await PostgresAnimes().update_last_animes(animes=animes_)
             case 'TodayAnime':
                 animes_ = []
                 for anime, anime_id in zip(animes, animes_ids):
                     animes_.append((anime_id, anime.seria, anime.time))
-                await PostgresController().update_today_animes(animes=animes_)
+                await PostgresAnimes().update_today_animes(animes=animes_)
             case 'AntAnime':
-                await PostgresController().update_ants(animes_ids=animes_ids)
+                await PostgresAnimes().update_ants(animes_ids=animes_ids)
             case 'TimetableAnimes':
                 animes_ = []
                 for anime, anime_id in zip(animes, animes_ids):
                     animes_.append((anime_id, anime.day, anime.time))
-                await PostgresController().update_timetable(animes=animes_)
+                await PostgresAnimes().update_timetable(animes=animes_)
 
     async def update_main(self):
         last_animes, today_animes = await AmediaParcer().parce_home()
