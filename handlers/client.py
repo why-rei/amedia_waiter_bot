@@ -4,10 +4,13 @@ from loguru import logger
 
 from core.settings import bot
 from handlers.keyboards import UsersKeyboards
+from databases import PostgresUsers
 
 
 # Start command
 async def start_command(message: Message) -> None:
+    user_id = message.from_user.id
+    await PostgresUsers().add_user(user_id=user_id)
     await message.answer('start msg', reply_markup=await UsersKeyboards.main_kb())
 
 

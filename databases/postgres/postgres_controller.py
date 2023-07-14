@@ -1,9 +1,10 @@
-from typing import List, Tuple
+from datetime import datetime
+from typing import Type, List, Tuple
 
 from sqlalchemy import select, text
 
-from .postgres_engine import engine, Async_Session
-from .postgres_tables import Base, Animes, LastAnimes, TodayAnimes, Ants, Timetable
+from databases.postgres._postgres_engine import engine, Async_Session
+from databases.postgres._postgres_tables import Base, Animes, LastAnimes, TodayAnimes, Ants, Timetable, Users
 
 
 # All postgres tables create
@@ -76,4 +77,30 @@ class PostgresAnimes:
 
 
 class PostgresUsers:
-    pass
+
+    @staticmethod
+    def _get_user(session: Type[Async_Session], user_id: int):
+        return session.get(Users, user_id)
+
+    async def update_user(self, user_id: int, fav: int = 0):
+        async with Async_Session() as session, session.begin():
+            user = await self._get_user(session=session, user_id=user_id)
+            if user:
+                user.fav_count += fav
+                user.last_update = datetime.now()
+                session.add(user)
+
+    async def add_user(self, user_id: int):
+        async with Async_Session() as session, session.begin():
+            user = await self._get_user(session=session, user_id=user_id)
+            if not user:
+                new_user = Users(id=user_id)
+                session.add(new_user)
+            else:
+                await self.update_user(user_id=user_id)
+
+
+if __name__ == '__main__':
+    import asyncio
+
+    asyncio.run(PostgresUsers().update_user(9999, 1))

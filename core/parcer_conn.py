@@ -2,7 +2,7 @@ from collections import namedtuple
 from typing import Type, List, Sequence
 
 from parcer import AmediaParcer
-from databases.postgres_controller import PostgresAnimes
+from databases import PostgresAnimes
 
 
 class ParcerConn:
