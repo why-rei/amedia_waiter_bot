@@ -1,2 +1,1 @@
-from .postgres_controller import PostgresAnimes, PostgresUsers
-from .postgres_controller import postgres_tables_create
+from .postgres_controller import PostgresController

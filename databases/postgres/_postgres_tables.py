@@ -58,21 +58,20 @@ class Timetable(Base):
     time = Column(String, nullable=True)
     anime = relationship('Animes', uselist=False, lazy='joined')
 
-#
+
+class Favorite(Base):
+    __tablename__ = 'favorite'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(BigInteger, ForeignKey('users.id'))
+    anime_id = Column(Integer, ForeignKey('animes.id'))
+    anime = relationship('Animes', uselist=False, lazy='joined')
+
 # class Notice(Base):
 #     __tablename__ = 'notice'
 #     id = Column(Integer, primary_key=True, autoincrement=True)
 #     anime_id = Column(Integer, ForeignKey('animes.id'), nullable=False)
 #     seria = Column(String, nullable=False)
 #     checker = Column(Boolean, default=False)
-#     anime = relationship('Animes', uselist=False, lazy='joined')
-#
-#
-# class Favorite(Base):
-#     __tablename__ = 'favorite'
-#     id = Column(Integer, primary_key=True, autoincrement=True)
-#     user_id = Column(BigInteger, ForeignKey('users.id'))
-#     anime_id = Column(Integer, ForeignKey('animes.id'))
 #     anime = relationship('Animes', uselist=False, lazy='joined')
 #
 #
