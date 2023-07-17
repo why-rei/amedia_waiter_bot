@@ -2,6 +2,7 @@ from typing import Type
 
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
 
+from data.config import DAYS
 from databases import PostgresController
 
 
@@ -93,3 +94,41 @@ class UsersKeyboards:
         today_kb_.add(b_update)
 
         return today_kb_
+
+    @staticmethod
+    async def timetable_kb(user_id: int) -> InlineKeyboardMarkup:
+        await PostgresController().mark_user(user_id=user_id)
+
+        timetable_kb_ = InlineKeyboardMarkup(row_width=7)
+        timetable_kb_.add(InlineKeyboardButton('Все расписание', callback_data='timetable_all'))
+        timetable_kb_.row(
+            *[{'text': DAYS[i][0], 'callback_data': f'timetable_{i}'} for i in DAYS]
+        )
+
+        return timetable_kb_
+
+    @staticmethod
+    async def timetable_day_kb(user_id: int, day: str) -> InlineKeyboardMarkup:
+        await PostgresController().mark_user(user_id=user_id)
+
+        td_animes = await PostgresController().get_timetable_animes(user_id=user_id, day=day)
+
+        day = int(day)
+        td_kb_ = InlineKeyboardMarkup(row_width=2)
+        b_right = InlineKeyboardButton('->', callback_data=f'timetable_{day + 1}')
+        b_left = InlineKeyboardButton('<-', callback_data=f'timetable_{day - 1}')
+
+        for item in td_animes:
+            anime_name = ' '.join(item.anime.name.split()[:3])
+            td_kb_.add(InlineKeyboardButton(f'{anime_name} | {item.time}', callback_data=f'anime_{item.anime_id}'))
+
+        if day == 0:
+            td_kb_.add(b_right)
+        elif day == 6:
+            td_kb_.add(b_left)
+        else:
+            td_kb_.row(b_left, b_right)
+
+        td_kb_.add(InlineKeyboardButton('--Назад--', callback_data='timetable_back'))
+
+        return td_kb_

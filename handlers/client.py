@@ -4,7 +4,7 @@ from aiogram.types import Message, CallbackQuery
 from aiogram.utils.exceptions import MessageNotModified
 from loguru import logger
 
-from core.settings import bot
+from data.config import DAYS
 from handlers.keyboards import UsersKeyboards
 from databases import PostgresController
 from data import START_MESSAGE
@@ -14,7 +14,7 @@ from data import START_MESSAGE
 
 async def start_command(message: Message) -> None:
     user_id = message.from_user.id
-    await PostgresController().add_user(user_id=user_id)
+    await PostgresController().mark_user(user_id=user_id)
     await message.answer(START_MESSAGE, reply_markup=await UsersKeyboards.main_kb())
 
 
@@ -36,6 +36,11 @@ async def today_command(message: Message) -> None:
 async def ants_command(message: Message) -> None:
     user_id = message.from_user.id
     await message.answer('Анонсы:', reply_markup=await UsersKeyboards.ants_kb(user_id=user_id))
+
+
+async def timetable_command(message: Message) -> None:
+    user_id = message.from_user.id
+    await message.answer('Расписание:', reply_markup=await UsersKeyboards.timetable_kb(user_id=user_id))
 
 
 """Callbacks handlers"""
@@ -110,6 +115,39 @@ async def ants_callback(callback: CallbackQuery) -> None:
         await callback.answer(cache_time=2)
 
 
+async def timetable_callback(callback: CallbackQuery) -> None:
+    user_id = callback.from_user.id
+    req = callback.data.split('_')[1]
+    if req.isdigit():
+        return await callback.message.edit_text(f'{DAYS[int(req)][1]}:',
+                                                reply_markup=await UsersKeyboards.timetable_day_kb(user_id=user_id,
+                                                                                                   day=req))
+    elif req == 'all':
+        try:
+            timetable_str = ''
+            timetable_animes = await PostgresController().get_timetable_animes(user_id=user_id, day='all')
+            day_count = None
+            for item in timetable_animes:
+                anime, day, time = item.anime, item.day, item.time
+                anime_str = f'\n{anime.name} | {time}'
+                if day == day_count:
+                    timetable_str += anime_str
+                else:
+                    day_count = day
+                    timetable_str += f'\n\n{DAYS[day][1]}:{anime_str}'
+
+            await callback.message.edit_text(f'Все расписание:\n{timetable_str}',
+                                             reply_markup=await UsersKeyboards.timetable_kb(user_id=user_id))
+        except MessageNotModified:
+            await callback.message.edit_text('Расписание:',
+                                             reply_markup=await UsersKeyboards.timetable_kb(user_id=user_id))
+
+    elif req == 'back':
+        await callback.message.edit_text('Расписание:', reply_markup=await UsersKeyboards.timetable_kb(user_id=user_id))
+
+    await callback.answer(cache_time=2)
+
+
 """Registration handlers"""
 
 
@@ -121,6 +159,7 @@ async def register_handlers_client(dp: Dispatcher) -> None:
     dp.register_message_handler(today_command, text=['Сегодня'])
 
     dp.register_message_handler(ants_command, commands=['ants'])
+    dp.register_message_handler(timetable_command, commands=['timetable'])
 
     # Callbacks
     dp.register_callback_query_handler(anime_callback, Text(startswith='anime_'))
@@ -128,3 +167,4 @@ async def register_handlers_client(dp: Dispatcher) -> None:
     dp.register_callback_query_handler(lasts_callback, Text(startswith='last_'))
     dp.register_callback_query_handler(today_callback, Text(startswith='today_'))
     dp.register_callback_query_handler(ants_callback, Text(startswith='ants_'))
+    dp.register_callback_query_handler(timetable_callback, Text(startswith='timetable_'))

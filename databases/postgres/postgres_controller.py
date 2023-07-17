@@ -31,7 +31,7 @@ class PostgresController:
             new_user = Users(id=user_id)
             return session.add(new_user)
 
-    async def add_user(self, user_id: int) -> None:
+    async def mark_user(self, user_id: int) -> None:
         async with Async_Session() as session, session.begin():
             await self._update_user(session=session, user_id=user_id)
 
@@ -158,6 +158,7 @@ class PostgresController:
     async def get_today_animes(self, user_id: int) -> List[Type[TodayAnimes]]:
         async with Async_Session() as session, session.begin():
             await self._update_user(session=session, user_id=user_id)
+
             stmt = select(TodayAnimes).order_by(TodayAnimes.id)
             db_response = await session.scalars(stmt)
             today_animes = db_response.all()
@@ -166,14 +167,28 @@ class PostgresController:
     async def get_ants_animes(self, user_id: int) -> List[Type[Ants]]:
         async with Async_Session() as session, session.begin():
             await self._update_user(session=session, user_id=user_id)
+
             stmt = select(Ants).order_by(Ants.id)
             db_response = await session.scalars(stmt)
             ants_animes = db_response.all()
             return ants_animes
 
+    async def get_timetable_animes(self, user_id: int, day: str) -> List[Type[Timetable]]:
+        async with Async_Session() as session, session.begin():
+            await self._update_user(session=session, user_id=user_id)
+
+            if day.isdigit():
+                day = int(day)
+                stmt = select(Timetable).where(Timetable.day == day).order_by(Timetable.day)
+            elif day == 'all':
+                stmt = select(Timetable).order_by(Timetable.day)
+            db_response = await session.scalars(stmt)
+            timetable_animes = db_response.all()
+            return timetable_animes
+
 
 if __name__ == '__main__':
     import asyncio
 
-    r = asyncio.run(PostgresController().add_user(user_id=9999))
+    r = asyncio.run(PostgresController().mark_user(9999))
     print(r)
