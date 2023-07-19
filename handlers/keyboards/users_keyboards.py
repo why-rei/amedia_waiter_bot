@@ -23,9 +23,9 @@ class UsersKeyboards:
         anime_kb_ = InlineKeyboardMarkup(row_width=1)
         anime_kb_.add(InlineKeyboardButton('Смотреть', url=url))
         if not user_fav_check:
-            anime_kb_.add(InlineKeyboardButton('Добавить в избранное', callback_data=f'fav_add_{anime_id}'))
+            anime_kb_.add(InlineKeyboardButton('Добавить в избранное', callback_data=f'anime*fav_add_{anime_id}'))
         else:
-            anime_kb_.add(InlineKeyboardButton('Удалить из избранного', callback_data=f'fav_del_{anime_id}'))
+            anime_kb_.add(InlineKeyboardButton('Удалить из избранного', callback_data=f'anime*fav_del_{anime_id}'))
         return anime_kb_
 
     @staticmethod
@@ -35,6 +35,7 @@ class UsersKeyboards:
         for fav in user_faves:
             anime = fav[0].anime
             fav_kb_.add(InlineKeyboardButton(anime.name, callback_data=f'anime_{anime.id}'))
+        fav_kb_.add(InlineKeyboardButton('Обновить', callback_data='fav_update'))
         return fav_kb_
 
     @staticmethod

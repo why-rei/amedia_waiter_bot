@@ -79,7 +79,7 @@ async def anime_callback(callback: CallbackQuery) -> None:
     await callback.answer(cache_time=2)
 
 
-async def fav_callback(callback: CallbackQuery) -> None:
+async def anime_fav_callback(callback: CallbackQuery) -> None:
     user_id = callback.from_user.id
     cd = callback.data.split('_')
     req = cd[1]
@@ -110,6 +110,18 @@ async def fav_callback(callback: CallbackQuery) -> None:
             anime_id=anime_id, user_fav_check=user_fav_check, url=anime.link))
     except MessageNotModified:
         pass
+
+
+async def fav_callback(callback: CallbackQuery) -> None:
+    user_id = callback.from_user.id
+    req = callback.data.split('_')[1]
+    if req == 'update':
+        try:
+            await callback.message.edit_reply_markup(reply_markup=await UsersKeyboards.fav_kb(user_id=user_id))
+        except MessageNotModified:
+            pass
+
+    await callback.answer(cache_time=2)
 
 
 async def lasts_callback(callback: CallbackQuery) -> None:
@@ -205,7 +217,10 @@ async def register_handlers_client(dp: Dispatcher) -> None:
 
     # Callbacks
     dp.register_callback_query_handler(anime_callback, Text(startswith='anime_'))
+    dp.register_callback_query_handler(anime_fav_callback, Text(startswith='anime*fav_'))
+
     dp.register_callback_query_handler(fav_callback, Text(startswith='fav_'))
+
     dp.register_callback_query_handler(lasts_callback, Text(startswith='last_'))
     dp.register_callback_query_handler(today_callback, Text(startswith='today_'))
     dp.register_callback_query_handler(ants_callback, Text(startswith='ants_'))

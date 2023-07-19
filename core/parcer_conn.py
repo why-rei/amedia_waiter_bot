@@ -36,51 +36,43 @@ class ParcerConn:
                 await self._push_anime(anime_url=anime_url)
 
     async def _allocation_animes(self, animes: Sequence[Type[namedtuple]]) -> None:
-        animes_ids = await self._get_all_animes_ids(animes=animes)
-        await self._initialize_animes(animes=animes, animes_ids=animes_ids)
-        namedtuple_name = animes[0].__class__.__name__
+        if animes:
+            animes_ids = await self._get_all_animes_ids(animes=animes)
+            await self._initialize_animes(animes=animes, animes_ids=animes_ids)
+            namedtuple_name = animes[0].__class__.__name__
 
-        match namedtuple_name:
-            case 'LastAnime':
-                animes_ = []
-                for anime, anime_id in zip(animes, animes_ids):
-                    animes_.append((anime_id, anime.seria, anime.time))
-                await PostgresController().update_last_animes(animes=animes_)
-            case 'TodayAnime':
-                animes_ = []
-                for anime, anime_id in zip(animes, animes_ids):
-                    animes_.append((anime_id, anime.seria, anime.time))
-                await PostgresController().update_today_animes(animes=animes_)
-            case 'AntAnime':
-                await PostgresController().update_ants(animes_ids=animes_ids)
-            case 'TimetableAnimes':
-                animes_ = []
-                for anime, anime_id in zip(animes, animes_ids):
-                    animes_.append((anime_id, anime.day, anime.time))
-                await PostgresController().update_timetable(animes=animes_)
+            match namedtuple_name:
+                case 'LastAnime':
+                    animes_ = []
+                    for anime, anime_id in zip(animes, animes_ids):
+                        animes_.append((anime_id, anime.seria, anime.time))
+                    await PostgresController().update_last_animes(animes=animes_)
+                case 'TodayAnime':
+                    animes_ = []
+                    for anime, anime_id in zip(animes, animes_ids):
+                        animes_.append((anime_id, anime.seria, anime.time))
+                    await PostgresController().update_today_animes(animes=animes_)
+                case 'AntAnime':
+                    await PostgresController().update_ants(animes_ids=animes_ids)
+                case 'TimetableAnimes':
+                    animes_ = []
+                    for anime, anime_id in zip(animes, animes_ids):
+                        animes_.append((anime_id, anime.day, anime.time))
+                    await PostgresController().update_timetable(animes=animes_)
 
-    async def update_main(self):
+    async def update_main(self) -> None:
         last_animes, today_animes = await AmediaParcer().parce_home()
         await self._allocation_animes(animes=last_animes)
         await self._allocation_animes(animes=today_animes)
 
-    async def update_ants(self):
+    async def update_ants(self) -> None:
         ants = await AmediaParcer().parce_ants()
         await self._allocation_animes(animes=ants)
 
-    async def update_timetable(self):
+    async def update_timetable(self) -> None:
         timetable = await AmediaParcer().parce_timetable()
         await self._allocation_animes(animes=timetable)
 
-
-if __name__ == '__main__':
-    import asyncio
-    from databases import postgres_tables_create
-
-
-    async def test():
-        await postgres_tables_create()
-        await ParcerConn().update_ants()
-
-
-    asyncio.run(test())
+    async def update_secondary(self) -> None:
+        await self.update_ants()
+        await self.update_timetable()
