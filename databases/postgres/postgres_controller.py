@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Type, List, Tuple
 
-from sqlalchemy import select, text, delete
+from sqlalchemy import select, text, delete, func
 
 from databases.postgres._postgres_engine import engine, Async_Session
 from databases.postgres._postgres_tables import Base, Animes, LastAnimes, TodayAnimes, Ants, Timetable, Users, Favorite
@@ -186,9 +186,19 @@ class PostgresController:
             timetable_animes = db_response.all()
             return timetable_animes
 
+    async def find_animes(self, user_id: int, user_req: str) -> List[Type[Animes]]:
+        async with Async_Session() as session, session.begin():
+            await self._update_user(session=session, user_id=user_id)
+
+            stmt = select(Animes).filter(Animes.name.ilike(f'%{user_req}%')).order_by(Animes.name)
+            animes = await session.execute(stmt)
+            return animes.all()
+
 
 if __name__ == '__main__':
     import asyncio
 
-    r = asyncio.run(PostgresController().mark_user(9999))
-    print(r)
+    # r = asyncio.run(PostgresController().find_anime(user_id=, user_req='Месть'))
+    # print(r)
+    # for i in r:
+    #     print(i)

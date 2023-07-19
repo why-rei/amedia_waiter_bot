@@ -2,7 +2,7 @@ from typing import Type
 
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
 
-from data.config import DAYS
+from data.config import DAYS, FIND_BTNS
 from databases import PostgresController
 
 
@@ -109,26 +109,52 @@ class UsersKeyboards:
 
     @staticmethod
     async def timetable_day_kb(user_id: int, day: str) -> InlineKeyboardMarkup:
-        await PostgresController().mark_user(user_id=user_id)
-
-        td_animes = await PostgresController().get_timetable_animes(user_id=user_id, day=day)
+        timetable_day_animes = await PostgresController().get_timetable_animes(user_id=user_id, day=day)
 
         day = int(day)
-        td_kb_ = InlineKeyboardMarkup(row_width=2)
+        timetable_day_kb_ = InlineKeyboardMarkup(row_width=2)
         b_right = InlineKeyboardButton('->', callback_data=f'timetable_{day + 1}')
         b_left = InlineKeyboardButton('<-', callback_data=f'timetable_{day - 1}')
 
-        for item in td_animes:
+        for item in timetable_day_animes:
             anime_name = ' '.join(item.anime.name.split()[:3])
-            td_kb_.add(InlineKeyboardButton(f'{anime_name} | {item.time}', callback_data=f'anime_{item.anime_id}'))
+            timetable_day_kb_.add(
+                InlineKeyboardButton(f'{anime_name} | {item.time}', callback_data=f'anime_{item.anime_id}'))
 
         if day == 0:
-            td_kb_.add(b_right)
+            timetable_day_kb_.add(b_right)
         elif day == 6:
-            td_kb_.add(b_left)
+            timetable_day_kb_.add(b_left)
         else:
-            td_kb_.row(b_left, b_right)
+            timetable_day_kb_.row(b_left, b_right)
 
-        td_kb_.add(InlineKeyboardButton('--Назад--', callback_data='timetable_back'))
+        timetable_day_kb_.add(InlineKeyboardButton('--Назад--', callback_data='timetable_back'))
 
-        return td_kb_
+        return timetable_day_kb_
+
+    @staticmethod
+    async def find_start_kb(user_id: int) -> InlineKeyboardMarkup:
+        await PostgresController().mark_user(user_id=user_id)
+
+        find_start_kb_ = InlineKeyboardMarkup(row_width=1)
+        find_start_kb_.add(InlineKeyboardButton(FIND_BTNS['start'], callback_data='find_start'))
+
+        return find_start_kb_
+
+    @staticmethod
+    async def find_cancel_kb(user_id: int) -> InlineKeyboardMarkup:
+        await PostgresController().mark_user(user_id=user_id)
+
+        find_cancel_kb_ = InlineKeyboardMarkup(row_width=1)
+        find_cancel_kb_.add(InlineKeyboardButton(FIND_BTNS['cancel'], callback_data='find_back'))
+        return find_cancel_kb_
+
+    @staticmethod
+    async def find_animes_kb(user_id: int, user_req: str) -> InlineKeyboardMarkup:
+        find_animes_kb_ = InlineKeyboardMarkup(row_width=1)
+        found_animes = await PostgresController().find_animes(user_id=user_id, user_req=user_req)
+        for item in found_animes:
+            anime = item[0]
+            find_animes_kb_.add(InlineKeyboardButton(anime.name, callback_data=f'anime_{anime.id}'))
+        find_animes_kb_.add(InlineKeyboardButton(FIND_BTNS['retry'], callback_data='find_start'))
+        return find_animes_kb_
