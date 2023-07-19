@@ -86,28 +86,30 @@ async def fav_callback(callback: CallbackQuery) -> None:
     anime_id = int(cd[2])
     if req == 'add':
         resp, anime = await PostgresController().add_user_fav(user_id=user_id, anime_id=anime_id)
-        if resp:
+        if resp == 1:
             await callback.answer(f'Добавлено: "{anime.name}"')
-        else:
+        elif resp == 2:
+            await callback.answer(f'Нельзя добавить: "{anime.name}". Удалите лишнее из избранного.', show_alert=True)
+        elif resp == 0:
             await callback.answer(f'"{anime.name}" уже у Вас в избранном', show_alert=True)
-        try:
-            await callback.message.edit_reply_markup(reply_markup=await UsersKeyboards.anime_kb(anime_id=anime_id,
-                                                                                                user_fav_check=1,
-                                                                                                url=anime.link))
-        except MessageNotModified:
-            pass
+
     elif req == 'del':
         resp, anime = await PostgresController().del_user_fav(user_id=user_id, anime_id=anime_id)
         if resp:
             await callback.answer(f'Удалено: "{anime.name}"')
         else:
             await callback.answer(f'"{anime.name}" нет у Вас в избранном', show_alert=True)
-        try:
-            await callback.message.edit_reply_markup(reply_markup=await UsersKeyboards.anime_kb(anime_id=anime_id,
-                                                                                                user_fav_check=0,
-                                                                                                url=anime.link))
-        except MessageNotModified:
-            pass
+
+    else:
+        anime = await PostgresController().get_anime(user_id=user_id, anime_id=anime_id)
+
+    try:
+        user_faves = await PostgresController().get_user_faves(user_id=user_id)
+        user_fav_check = 1 if anime_id in [x[0].anime_id for x in user_faves] else 0
+        await callback.message.edit_reply_markup(reply_markup=await UsersKeyboards.anime_kb(
+            anime_id=anime_id, user_fav_check=user_fav_check, url=anime.link))
+    except MessageNotModified:
+        pass
 
 
 async def lasts_callback(callback: CallbackQuery) -> None:

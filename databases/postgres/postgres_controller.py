@@ -1,8 +1,9 @@
 from datetime import datetime
 from typing import Type, List, Tuple
 
-from sqlalchemy import select, text, delete, func
+from sqlalchemy import select, text, delete
 
+from data.config import USER_FAV_LIMIT
 from databases.postgres._postgres_engine import engine, Async_Session
 from databases.postgres._postgres_tables import Base, Animes, LastAnimes, TodayAnimes, Ants, Timetable, Users, Favorite
 
@@ -53,7 +54,10 @@ class PostgresController:
             anime = await self._get_anime(session=session, anime_id=anime_id)
 
             user_fav = await self._get_user_fav(session=session, user_id=user_id, anime_id=anime_id)
-            if not user_fav.all():
+            user = await self._get_user(session=session, user_id=user_id)
+            if user.fav_count >= USER_FAV_LIMIT:
+                return 2, anime
+            elif not user_fav.all():
                 fav = Favorite(user_id=user_id, anime_id=anime_id)
                 session.add(fav)
                 await self._update_user(session=session, user_id=user_id, fav=1)
@@ -136,6 +140,11 @@ class PostgresController:
     @staticmethod
     def _get_anime(session: Type[Async_Session], anime_id: int) -> Type[Animes]:
         return session.get(Animes, anime_id)
+
+    async def get_anime(self, user_id: int, anime_id: int) -> Type[Animes]:
+        async with Async_Session() as session, session.begin():
+            await self._update_user(session=session, user_id=user_id)
+            return await self._get_anime(session=session, anime_id=anime_id)
 
     async def get_anime_view(self, anime_id: int, user_id: int) -> Tuple[Type[Animes], int]:
         async with Async_Session() as session, session.begin():
