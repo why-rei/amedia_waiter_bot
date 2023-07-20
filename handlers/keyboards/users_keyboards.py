@@ -3,7 +3,7 @@ from typing import Type
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
 
 from data.config import DAYS, FIND_BTNS
-from databases import PostgresController
+from databases import PostgresUsers
 
 
 class UsersKeyboards:
@@ -31,7 +31,7 @@ class UsersKeyboards:
     @staticmethod
     async def fav_kb(user_id: int) -> InlineKeyboardMarkup:
         fav_kb_ = InlineKeyboardMarkup(row_width=1)
-        user_faves = await PostgresController().get_user_faves(user_id=user_id)
+        user_faves = await PostgresUsers().get_user_faves(user_id=user_id)
         for fav in user_faves:
             anime = fav[0].anime
             fav_kb_.add(InlineKeyboardButton(anime.name, callback_data=f'anime_{anime.id}'))
@@ -44,7 +44,7 @@ class UsersKeyboards:
         count_out = 4
         end = count_out * n + 1
         start = end - count_out
-        last_animes = await PostgresController().get_last_animes(user_id=user_id, start=start, end=end)
+        last_animes = await PostgresUsers().get_last_animes(user_id=user_id, start=start, end=end)
 
         last_kb_ = InlineKeyboardMarkup(row_width=2)
         b_right = InlineKeyboardButton('->', callback_data=f'last_{n + 1}')
@@ -68,7 +68,7 @@ class UsersKeyboards:
 
     @staticmethod
     async def today_kb(user_id: int) -> InlineKeyboardMarkup:
-        last_animes = await PostgresController().get_today_animes(user_id=user_id)
+        last_animes = await PostgresUsers().get_today_animes(user_id=user_id)
 
         today_kb_ = InlineKeyboardMarkup(row_width=1)
         b_update = InlineKeyboardButton('Обновить', callback_data=f'today_')
@@ -84,7 +84,7 @@ class UsersKeyboards:
 
     @staticmethod
     async def ants_kb(user_id: int) -> InlineKeyboardMarkup:
-        last_animes = await PostgresController().get_ants_animes(user_id=user_id)
+        last_animes = await PostgresUsers().get_ants_animes(user_id=user_id)
 
         today_kb_ = InlineKeyboardMarkup(row_width=1)
         b_update = InlineKeyboardButton('Обновить', callback_data=f'ants_')
@@ -98,7 +98,7 @@ class UsersKeyboards:
 
     @staticmethod
     async def timetable_kb(user_id: int) -> InlineKeyboardMarkup:
-        await PostgresController().mark_user(user_id=user_id)
+        await PostgresUsers().mark_user(user_id=user_id)
 
         timetable_kb_ = InlineKeyboardMarkup(row_width=7)
         timetable_kb_.add(InlineKeyboardButton('Все расписание', callback_data='timetable_all'))
@@ -110,7 +110,7 @@ class UsersKeyboards:
 
     @staticmethod
     async def timetable_day_kb(user_id: int, day: str) -> InlineKeyboardMarkup:
-        timetable_day_animes = await PostgresController().get_timetable_animes(user_id=user_id, day=day)
+        timetable_day_animes = await PostgresUsers().get_timetable_animes(user_id=user_id, day=day)
 
         day = int(day)
         timetable_day_kb_ = InlineKeyboardMarkup(row_width=2)
@@ -135,7 +135,7 @@ class UsersKeyboards:
 
     @staticmethod
     async def find_start_kb(user_id: int) -> InlineKeyboardMarkup:
-        await PostgresController().mark_user(user_id=user_id)
+        await PostgresUsers().mark_user(user_id=user_id)
 
         find_start_kb_ = InlineKeyboardMarkup(row_width=1)
         find_start_kb_.add(InlineKeyboardButton(FIND_BTNS['start'], callback_data='find_start'))
@@ -144,7 +144,7 @@ class UsersKeyboards:
 
     @staticmethod
     async def find_cancel_kb(user_id: int) -> InlineKeyboardMarkup:
-        await PostgresController().mark_user(user_id=user_id)
+        await PostgresUsers().mark_user(user_id=user_id)
 
         find_cancel_kb_ = InlineKeyboardMarkup(row_width=1)
         find_cancel_kb_.add(InlineKeyboardButton(FIND_BTNS['cancel'], callback_data='find_back'))
@@ -153,7 +153,7 @@ class UsersKeyboards:
     @staticmethod
     async def find_animes_kb(user_id: int, user_req: str) -> InlineKeyboardMarkup:
         find_animes_kb_ = InlineKeyboardMarkup(row_width=1)
-        found_animes = await PostgresController().find_animes(user_id=user_id, user_req=user_req)
+        found_animes = await PostgresUsers().find_animes(user_id=user_id, user_req=user_req)
         for item in found_animes:
             anime = item[0]
             find_animes_kb_.add(InlineKeyboardButton(anime.name, callback_data=f'anime_{anime.id}'))

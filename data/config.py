@@ -1,4 +1,4 @@
-USER_FAV_LIMIT = 5
+USER_FAV_LIMIT = 30
 START_MESSAGE = 'Добавь аниме в избранное и получи уведомление как только оно появится на сайте ' \
                 'Amedia.online, по любым вопросам - @new_try'
 

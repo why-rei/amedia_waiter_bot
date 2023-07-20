@@ -4,19 +4,18 @@ from typing import Type, List, Tuple
 from sqlalchemy import select, text, delete
 
 from data.config import USER_FAV_LIMIT
-from databases.postgres._postgres_engine import engine, Async_Session
-from databases.postgres._postgres_tables import Base, Animes, LastAnimes, TodayAnimes, Ants, Timetable, Users, Favorite
+from ._postgres_engine import engine, Async_Session
+from ._postgres_tables import Base, Animes, LastAnimes, TodayAnimes, Ants, Timetable, Users, Favorite
 
 
-class PostgresController:
+async def postgres_tables_create() -> None:
+    """Create all postgres tables"""
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    await engine.dispose()
 
-    @staticmethod
-    async def postgres_tables_create() -> None:
-        """Create all postgres tables"""
-        async with engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
-        await engine.dispose()
 
+class PostgresUsers:
     # Users
     @staticmethod
     def _get_user(session: Type[Async_Session], user_id: int) -> Type[Async_Session]:
@@ -75,66 +74,6 @@ class PostgresController:
                 await self._update_user(session=session, user_id=user_id, fav=-1)
                 return 1, anime
             return 0, anime
-
-    # Add and update animes
-    @staticmethod
-    async def check_animes_ids(animes_ids: List[int]) -> List[int]:
-        async with Async_Session() as session, session.begin():
-            stmt = select(Animes.id).where(Animes.id.in_(animes_ids))
-            db_response = await session.scalars(stmt)
-            identified_animes = db_response.all()
-
-            return [animes_ids.index(x) for x in animes_ids if x not in identified_animes]
-
-    @staticmethod
-    async def add_anime(pk: int, name: str, desc: str, info: str, photo_url: str, url: str) -> None:
-        async with Async_Session() as session, session.begin():
-            anime = Animes(id=pk, name=name, desc=desc, info=info, photo_url=photo_url, link=url)
-            session.add(anime)
-
-    @staticmethod
-    def _truncate_table(session, table_name):
-        return session.execute(text(f'TRUNCATE TABLE {table_name} RESTART IDENTITY;'))
-
-    async def update_last_animes(self, animes: List[Tuple[int, str, str]]) -> None:
-        async with Async_Session() as session, session.begin():
-            table_name = LastAnimes.__name__.lower()
-            last_animes = []
-            for pk, seria, time in animes:
-                last_anime = LastAnimes(anime_id=pk, seria=seria, time=time)
-                last_animes.append(last_anime)
-            await self._truncate_table(session=session, table_name=table_name)
-            session.add_all(last_animes)
-
-    async def update_today_animes(self, animes: List[Tuple[int, str, str]]) -> None:
-        async with Async_Session() as session, session.begin():
-            table_name = TodayAnimes.__name__.lower()
-            today_animes = []
-            for pk, seria, time in animes:
-                today_anime = TodayAnimes(anime_id=pk, seria=seria, time=time)
-                today_animes.append(today_anime)
-            await self._truncate_table(session=session, table_name=table_name)
-            session.add_all(today_animes)
-
-    async def update_ants(self, animes_ids: List[int]) -> None:
-        async with Async_Session() as session, session.begin():
-            table_name = Ants.__name__.lower()
-            ants_animes = []
-            for anime_id in animes_ids:
-                ant_anime = Ants(anime_id=anime_id)
-                ants_animes.append(ant_anime)
-            await self._truncate_table(session=session, table_name=table_name)
-            session.add_all(ants_animes)
-
-    async def update_timetable(self, animes: List[Tuple[int, int, str]]) -> None:
-        async with Async_Session() as session, session.begin():
-            table_name = Timetable.__name__.lower()
-            timetable = []
-            for pk, day, time in animes:
-                timetable_anime = Timetable(anime_id=pk, day=day, time=time)
-                timetable.append(timetable_anime)
-            await self._truncate_table(session=session, table_name=table_name)
-            session.add_all(timetable)
 
     # Get animes for user
     @staticmethod
@@ -204,10 +143,62 @@ class PostgresController:
             return animes.all()
 
 
-if __name__ == '__main__':
-    import asyncio
+class PostgresParcer:
+    @staticmethod
+    async def check_animes_ids(animes_ids: List[int]) -> List[int]:
+        async with Async_Session() as session, session.begin():
+            stmt = select(Animes.id).where(Animes.id.in_(animes_ids))
+            db_response = await session.scalars(stmt)
+            identified_animes = db_response.all()
 
-    # r = asyncio.run(PostgresController().find_anime(user_id=, user_req='Месть'))
-    # print(r)
-    # for i in r:
-    #     print(i)
+            return [animes_ids.index(x) for x in animes_ids if x not in identified_animes]
+
+    @staticmethod
+    async def add_anime(pk: int, name: str, desc: str, info: str, photo_url: str, url: str) -> None:
+        async with Async_Session() as session, session.begin():
+            anime = Animes(id=pk, name=name, desc=desc, info=info, photo_url=photo_url, link=url)
+            session.add(anime)
+
+    @staticmethod
+    def _truncate_table(session, table_name):
+        return session.execute(text(f'TRUNCATE TABLE {table_name} RESTART IDENTITY;'))
+
+    async def update_last_animes(self, animes: List[Tuple[int, str, str]]) -> None:
+        async with Async_Session() as session, session.begin():
+            table_name = LastAnimes.__name__.lower()
+            last_animes = []
+            for pk, seria, time in animes:
+                last_anime = LastAnimes(anime_id=pk, seria=seria, time=time)
+                last_animes.append(last_anime)
+            await self._truncate_table(session=session, table_name=table_name)
+            session.add_all(last_animes)
+
+    async def update_today_animes(self, animes: List[Tuple[int, str, str]]) -> None:
+        async with Async_Session() as session, session.begin():
+            table_name = TodayAnimes.__name__.lower()
+            today_animes = []
+            for pk, seria, time in animes:
+                today_anime = TodayAnimes(anime_id=pk, seria=seria, time=time)
+                today_animes.append(today_anime)
+            await self._truncate_table(session=session, table_name=table_name)
+            session.add_all(today_animes)
+
+    async def update_ants(self, animes_ids: List[int]) -> None:
+        async with Async_Session() as session, session.begin():
+            table_name = Ants.__name__.lower()
+            ants_animes = []
+            for anime_id in animes_ids:
+                ant_anime = Ants(anime_id=anime_id)
+                ants_animes.append(ant_anime)
+            await self._truncate_table(session=session, table_name=table_name)
+            session.add_all(ants_animes)
+
+    async def update_timetable(self, animes: List[Tuple[int, int, str]]) -> None:
+        async with Async_Session() as session, session.begin():
+            table_name = Timetable.__name__.lower()
+            timetable = []
+            for pk, day, time in animes:
+                timetable_anime = Timetable(anime_id=pk, day=day, time=time)
+                timetable.append(timetable_anime)
+            await self._truncate_table(session=session, table_name=table_name)
+            session.add_all(timetable)

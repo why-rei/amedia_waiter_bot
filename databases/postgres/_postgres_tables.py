@@ -66,12 +66,11 @@ class Favorite(Base):
     anime_id = Column(Integer, ForeignKey('animes.id'))
     anime = relationship('Animes', uselist=False, lazy='joined')
 
-# class Notice(Base):
-#     __tablename__ = 'notice'
-#     id = Column(Integer, primary_key=True, autoincrement=True)
-#     anime_id = Column(Integer, ForeignKey('animes.id'), nullable=False)
-#     seria = Column(String, nullable=False)
-#     checker = Column(Boolean, default=False)
-#     anime = relationship('Animes', uselist=False, lazy='joined')
-#
-#
+
+class Notice(Base):
+    __tablename__ = 'notice'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    anime_id = Column(Integer, ForeignKey('animes.id'), nullable=False)
+    seria = Column(String, nullable=False)
+    checker = Column(SmallInteger, default=0)
+    anime = relationship('Animes', uselist=False, lazy='joined')

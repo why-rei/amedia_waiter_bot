@@ -29,3 +29,5 @@ tzdata==2022.7
 tzlocal==4.2
 urllib3==1.26.15
 yarl==1.9.2
+
+pymongo~=4.4.1

@@ -4,7 +4,7 @@ from aiogram import executor
 from loguru import logger
 
 from settings import dp
-from databases import PostgresController
+from databases import postgres_tables_create
 from handlers.client import register_handlers_client
 from parcer_conn import ParcerConn
 
@@ -19,7 +19,7 @@ async def scheduler():
 
 
 async def on_startup(_):
-    await PostgresController.postgres_tables_create()
+    await postgres_tables_create()
     await register_handlers_client(dp)
 
     await ParcerConn().update_main()

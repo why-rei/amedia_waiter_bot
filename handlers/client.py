@@ -8,7 +8,7 @@ from loguru import logger
 
 from data.config import DAYS, FIND_MSGS
 from handlers.keyboards import UsersKeyboards
-from databases import PostgresController
+from databases import PostgresUsers
 from data import START_MESSAGE
 
 
@@ -21,7 +21,7 @@ class AnimeFind(StatesGroup):
 
 async def start_command(message: Message) -> None:
     user_id = message.from_user.id
-    await PostgresController().mark_user(user_id=user_id)
+    await PostgresUsers().mark_user(user_id=user_id)
     await message.answer(START_MESSAGE, reply_markup=await UsersKeyboards.main_kb())
 
 
@@ -71,7 +71,7 @@ async def finding_anime(message: Message, state: FSMContext) -> None:
 async def anime_callback(callback: CallbackQuery) -> None:
     user_id = callback.from_user.id
     anime_id = int(callback.data.split('_')[1])
-    anime, user_fav_check = await PostgresController().get_anime_view(anime_id=anime_id, user_id=user_id)
+    anime, user_fav_check = await PostgresUsers().get_anime_view(anime_id=anime_id, user_id=user_id)
     await callback.message.answer_photo(anime.photo_url, f'{anime.name}\n\n{anime.info}\n\n{anime.desc}',
                                         reply_markup=await UsersKeyboards.anime_kb(anime_id=anime_id,
                                                                                    user_fav_check=user_fav_check,
@@ -85,7 +85,7 @@ async def anime_fav_callback(callback: CallbackQuery) -> None:
     req = cd[1]
     anime_id = int(cd[2])
     if req == 'add':
-        resp, anime = await PostgresController().add_user_fav(user_id=user_id, anime_id=anime_id)
+        resp, anime = await PostgresUsers().add_user_fav(user_id=user_id, anime_id=anime_id)
         if resp == 1:
             await callback.answer(f'Добавлено: "{anime.name}"')
         elif resp == 2:
@@ -94,17 +94,17 @@ async def anime_fav_callback(callback: CallbackQuery) -> None:
             await callback.answer(f'"{anime.name}" уже у Вас в избранном', show_alert=True)
 
     elif req == 'del':
-        resp, anime = await PostgresController().del_user_fav(user_id=user_id, anime_id=anime_id)
+        resp, anime = await PostgresUsers().del_user_fav(user_id=user_id, anime_id=anime_id)
         if resp:
             await callback.answer(f'Удалено: "{anime.name}"')
         else:
             await callback.answer(f'"{anime.name}" нет у Вас в избранном', show_alert=True)
 
     else:
-        anime = await PostgresController().get_anime(user_id=user_id, anime_id=anime_id)
+        anime = await PostgresUsers().get_anime(user_id=user_id, anime_id=anime_id)
 
     try:
-        user_faves = await PostgresController().get_user_faves(user_id=user_id)
+        user_faves = await PostgresUsers().get_user_faves(user_id=user_id)
         user_fav_check = 1 if anime_id in [x[0].anime_id for x in user_faves] else 0
         await callback.message.edit_reply_markup(reply_markup=await UsersKeyboards.anime_kb(
             anime_id=anime_id, user_fav_check=user_fav_check, url=anime.link))
@@ -161,7 +161,7 @@ async def timetable_callback(callback: CallbackQuery) -> None:
     elif req == 'all':
         try:
             timetable_str = ''
-            timetable_animes = await PostgresController().get_timetable_animes(user_id=user_id, day='all')
+            timetable_animes = await PostgresUsers().get_timetable_animes(user_id=user_id, day='all')
             day_count = None
             for item in timetable_animes:
                 anime, day, time = item.anime, item.day, item.time
