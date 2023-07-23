@@ -1,1 +1,1 @@
-from .amedia_parcer import AmediaParcer
+from .parcer_conn import ParcerConn

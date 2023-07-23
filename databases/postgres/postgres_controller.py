@@ -3,9 +3,9 @@ from typing import Type, List, Tuple
 
 from sqlalchemy import select, text, delete
 
-from data.config import USER_FAV_LIMIT
 from ._postgres_engine import engine, Async_Session
 from ._postgres_tables import Base, Animes, LastAnimes, TodayAnimes, Ants, Timetable, Users, Favorite
+from data import USER_FAV_LIMIT
 
 
 async def postgres_tables_create() -> None:

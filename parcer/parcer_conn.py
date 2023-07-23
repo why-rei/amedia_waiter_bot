@@ -1,7 +1,7 @@
 from collections import namedtuple
 from typing import Type, List, Sequence
 
-from parcer import AmediaParcer
+from ._amedia_parcer import AmediaParcer
 from databases import PostgresParcer
 
 
@@ -72,7 +72,3 @@ class ParcerConn:
     async def update_timetable(self) -> None:
         timetable = await AmediaParcer().parce_timetable()
         await self._allocation_animes(animes=timetable)
-
-    async def update_secondary(self) -> None:
-        await self.update_ants()
-        await self.update_timetable()

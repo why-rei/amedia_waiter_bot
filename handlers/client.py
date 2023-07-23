@@ -24,35 +24,49 @@ async def start_command(message: Message) -> None:
     await PostgresUsers().mark_user(user_id=user_id)
     await message.answer(START_MESSAGE, reply_markup=await UsersKeyboards.main_kb())
 
+    logger.info(user_id)
+
 
 async def fav_command(message: Message) -> None:
     user_id = message.from_user.id
     await message.answer('Избранное:', reply_markup=await UsersKeyboards.fav_kb(user_id=user_id))
+
+    logger.info(user_id)
 
 
 async def lasts_command(message: Message) -> None:
     user_id = message.from_user.id
     await message.answer('Последние:', reply_markup=await UsersKeyboards.last_kb(user_id=user_id))
 
+    logger.info(user_id)
+
 
 async def today_command(message: Message) -> None:
     user_id = message.from_user.id
     await message.answer('Сегодня:', reply_markup=await UsersKeyboards.today_kb(user_id=user_id))
+
+    logger.info(user_id)
 
 
 async def ants_command(message: Message) -> None:
     user_id = message.from_user.id
     await message.answer('Анонсы:', reply_markup=await UsersKeyboards.ants_kb(user_id=user_id))
 
+    logger.info(user_id)
+
 
 async def timetable_command(message: Message) -> None:
     user_id = message.from_user.id
     await message.answer('Расписание:', reply_markup=await UsersKeyboards.timetable_kb(user_id=user_id))
 
+    logger.info(user_id)
+
 
 async def find_command(message: Message) -> None:
     user_id = message.from_user.id
     await message.answer('[--Поиск--]', reply_markup=await UsersKeyboards.find_start_kb(user_id=user_id))
+
+    logger.info(user_id)
 
 
 async def finding_anime(message: Message, state: FSMContext) -> None:
@@ -63,6 +77,8 @@ async def finding_anime(message: Message, state: FSMContext) -> None:
     await message.answer(FIND_MSGS['found'],
                          reply_markup=await UsersKeyboards.find_animes_kb(user_id=user_id, user_req=user_req))
     await state.finish()
+
+    logger.info(f'{user_id}\t:\t{user_req=}\t')
 
 
 """Callbacks handlers"""
@@ -77,6 +93,8 @@ async def anime_callback(callback: CallbackQuery) -> None:
                                                                                    user_fav_check=user_fav_check,
                                                                                    url=anime.link))
     await callback.answer(cache_time=2)
+
+    logger.info(f'{user_id}\t:\t{anime_id=}\tname="{anime.name[:10]}"\t')
 
 
 async def anime_fav_callback(callback: CallbackQuery) -> None:
@@ -111,6 +129,8 @@ async def anime_fav_callback(callback: CallbackQuery) -> None:
     except MessageNotModified:
         pass
 
+    logger.info(f'{user_id}\t:\t{req=}\t{anime_id=}\t')
+
 
 async def fav_callback(callback: CallbackQuery) -> None:
     user_id = callback.from_user.id
@@ -123,6 +143,8 @@ async def fav_callback(callback: CallbackQuery) -> None:
 
     await callback.answer(cache_time=2)
 
+    logger.info(f'{user_id}\t:\t{req=}')
+
 
 async def lasts_callback(callback: CallbackQuery) -> None:
     user_id = callback.from_user.id
@@ -134,6 +156,8 @@ async def lasts_callback(callback: CallbackQuery) -> None:
         except MessageNotModified:
             await callback.answer(cache_time=2)
 
+    logger.info(f'{user_id}\t:\t{req=}')
+
 
 async def today_callback(callback: CallbackQuery) -> None:
     user_id = callback.from_user.id
@@ -141,6 +165,8 @@ async def today_callback(callback: CallbackQuery) -> None:
         await callback.message.edit_reply_markup(reply_markup=await UsersKeyboards.today_kb(user_id=user_id))
     except MessageNotModified:
         await callback.answer(cache_time=2)
+
+    logger.info(user_id)
 
 
 async def ants_callback(callback: CallbackQuery) -> None:
@@ -150,14 +176,15 @@ async def ants_callback(callback: CallbackQuery) -> None:
     except MessageNotModified:
         await callback.answer(cache_time=2)
 
+    logger.info(user_id)
+
 
 async def timetable_callback(callback: CallbackQuery) -> None:
     user_id = callback.from_user.id
     req = callback.data.split('_')[1]
     if req.isdigit():
-        return await callback.message.edit_text(f'{DAYS[int(req)][1]}:',
-                                                reply_markup=await UsersKeyboards.timetable_day_kb(user_id=user_id,
-                                                                                                   day=req))
+        await callback.message.edit_text(f'{DAYS[int(req)][1]}:',
+                                         reply_markup=await UsersKeyboards.timetable_day_kb(user_id=user_id, day=req))
     elif req == 'all':
         try:
             timetable_str = ''
@@ -183,6 +210,8 @@ async def timetable_callback(callback: CallbackQuery) -> None:
 
     await callback.answer(cache_time=2)
 
+    logger.info(f'{user_id}\t:\t{req=}')
+
 
 async def find_callback(callback: CallbackQuery, state: FSMContext) -> None:
     user_id = callback.from_user.id
@@ -197,6 +226,8 @@ async def find_callback(callback: CallbackQuery, state: FSMContext) -> None:
                                          reply_markup=await UsersKeyboards.find_start_kb(user_id=user_id))
 
     await callback.answer(cache_time=2)
+
+    logger.info(f'{user_id}\t:\t{req=}')
 
 
 """Registration handlers"""

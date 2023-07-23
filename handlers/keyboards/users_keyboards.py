@@ -1,5 +1,3 @@
-from typing import Type
-
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
 
 from data.config import DAYS, FIND_BTNS
@@ -7,7 +5,6 @@ from databases import PostgresUsers
 
 
 class UsersKeyboards:
-
     @staticmethod
     async def main_kb() -> ReplyKeyboardMarkup:
         kb_main = ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)

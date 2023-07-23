@@ -6,28 +6,47 @@ from loguru import logger
 from settings import dp
 from databases import postgres_tables_create
 from handlers.client import register_handlers_client
-from parcer_conn import ParcerConn
+from parcer import ParcerConn
+from notice_sys import NoticeSys
+
+
+async def main():
+    try:
+        await ParcerConn().update_main()
+        await NoticeSys().notice()
+    except Exception as e:
+        logger.exception(e)
+
+
+async def secondary():
+    try:
+        await ParcerConn().update_ants()
+        await ParcerConn().update_timetable()
+    except Exception as e:
+        logger.exception(e)
 
 
 async def scheduler():
     scheduler_a = AsyncIOScheduler(timezone=str(tzlocal.get_localzone()))
 
-    scheduler_a.add_job(ParcerConn().update_main, trigger='interval', seconds=180)
-    scheduler_a.add_job(ParcerConn().update_secondary, trigger='cron', hour=00)
+    scheduler_a.add_job(main, trigger='interval', seconds=180)
+    scheduler_a.add_job(secondary, trigger='cron', hour=00)
 
     scheduler_a.start()
 
 
 async def on_startup(_):
-    await postgres_tables_create()
-    await register_handlers_client(dp)
+    try:
+        await postgres_tables_create()
+        await register_handlers_client(dp)
 
-    await ParcerConn().update_main()
-    await ParcerConn().update_secondary()
+        await main()
+        await secondary()
 
-    await scheduler()
+        await scheduler()
 
-    print('Bot is Online')
+    except Exception as e:
+        logger.exception(e)
 
 
 if __name__ == '__main__':

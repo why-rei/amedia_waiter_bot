@@ -1,4 +1,5 @@
 USER_FAV_LIMIT = 30
+
 START_MESSAGE = 'Добавь аниме в избранное и получи уведомление как только оно появится на сайте ' \
                 'Amedia.online, по любым вопросам - @new_try'
 
@@ -24,3 +25,5 @@ FIND_BTNS = {
     'cancel': '*Отмена*',
     'retry': '*Искать еще*',
 }
+
+NOTICE_MSG = 'Вышла {anime_seria} серия «{anime_name}»'
