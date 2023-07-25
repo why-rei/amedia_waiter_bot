@@ -94,4 +94,4 @@ telegram.jpg
 venv*
 
 #logs
-logs
+data/logs

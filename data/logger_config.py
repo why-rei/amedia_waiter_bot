@@ -1,4 +1,5 @@
 import sys
+import pathlib
 from loguru import logger
 
 l_level = "<b><k><M>{level: ^10}</></></>"
@@ -10,4 +11,5 @@ formatter = l_level + "\t|\t" + l_datetime + "\t|\t" + l_message + l_function
 
 logger.remove(0)
 logger.add(sys.stderr, level="INFO", format=formatter)
-logger.add("../logs/main.log", level="INFO", format=formatter, rotation="1 week", compression="zip")
+logger.add(f'{pathlib.Path().resolve()}/data/logs/main.log', level="INFO",
+           format=formatter, rotation="1 week", compression="zip")

@@ -14,7 +14,7 @@ WEBHOOK_URL = f"{WEBHOOK_HOST}{WEBHOOK_PATH}"
 
 # Webserver settings
 WEBAPP_HOST = '127.0.0.1'
-WEBAPP_PORT = 7771
+WEBAPP_PORT = 3100
 
 # Initialize bot, dispatcher and memory
 storage = MemoryStorage()

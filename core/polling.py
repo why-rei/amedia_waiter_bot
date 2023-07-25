@@ -3,7 +3,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from aiogram import executor
 from loguru import logger
 
-from settings import dp, bot, WEBHOOK_URL, WEBHOOK_PATH, WEBAPP_HOST, WEBAPP_PORT
+from settings import dp, bot
 from databases import postgres_tables_create
 from handlers.client import register_handlers_client
 from parcer import ParcerConn
@@ -37,8 +37,6 @@ async def scheduler():
 
 async def on_startup(_):
     try:
-        await bot.set_webhook(WEBHOOK_URL)
-
         await postgres_tables_create()
         await register_handlers_client(dp)
 
@@ -51,18 +49,5 @@ async def on_startup(_):
         logger.exception(e)
 
 
-async def on_shutdown(_):
-    await bot.delete_webhook()
-
-
 if __name__ == '__main__':
-    # executor.start_polling(dp, skip_updates=True, on_startup=on_startup)
-    executor.start_webhook(
-        dispatcher=dp,
-        webhook_path=WEBHOOK_PATH,
-        on_startup=on_startup,
-        on_shutdown=on_shutdown,
-        skip_updates=True,
-        host=WEBAPP_HOST,
-        port=WEBAPP_PORT,
-    )
+    executor.start_polling(dp, skip_updates=True, on_startup=on_startup)
