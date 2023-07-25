@@ -7,6 +7,8 @@ from dotenv import load_dotenv
 # Load .env
 load_dotenv()
 
+POSTGRES_CONN = os.getenv('POSTGRES_CONN')
+
 # Webhook settings
 WEBHOOK_HOST = os.getenv('SERVER_URI')
 WEBHOOK_PATH = '/bot'
