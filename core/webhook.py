@@ -37,7 +37,7 @@ async def scheduler() -> None:
 
 async def on_startup(_) -> None:
     try:
-        webhook_info = bot.get_webhook_info()
+        webhook_info = await bot.get_webhook_info()
         if webhook_info.url != WEBHOOK_URL:
             await bot.set_webhook(WEBHOOK_URL)
 
