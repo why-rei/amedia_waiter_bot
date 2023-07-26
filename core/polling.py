@@ -3,14 +3,14 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from aiogram import executor
 from loguru import logger
 
-from settings import dp, bot
+from settings import dp
 from databases import postgres_tables_create
 from handlers.client import register_handlers_client
 from parcer import ParcerConn
 from notice_sys import NoticeSys
 
 
-async def main():
+async def main() -> None:
     try:
         await ParcerConn().update_main()
         await NoticeSys().notice()
@@ -18,7 +18,7 @@ async def main():
         logger.exception(e)
 
 
-async def secondary():
+async def secondary() -> None:
     try:
         await ParcerConn().update_ants()
         await ParcerConn().update_timetable()
@@ -26,7 +26,7 @@ async def secondary():
         logger.exception(e)
 
 
-async def scheduler():
+async def scheduler() -> None:
     scheduler_a = AsyncIOScheduler(timezone=str(tzlocal.get_localzone()))
 
     scheduler_a.add_job(main, trigger='interval', seconds=180)
@@ -35,7 +35,7 @@ async def scheduler():
     scheduler_a.start()
 
 
-async def on_startup(_):
+async def on_startup(_) -> None:
     try:
         await postgres_tables_create()
         await register_handlers_client(dp)

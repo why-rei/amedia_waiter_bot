@@ -116,11 +116,3 @@ class AmediaParcer:
                 timetable_list.append(TimetableAnimes(anime_url, anime_day, anime_time))
 
         return timetable_list
-
-
-if __name__ == '__main__':
-    import asyncio
-
-    res = asyncio.run(
-        AmediaParcer().parce_anime("https://amedia.online/1424-johane-iz-pargelija-solnechnyj-svet-v-zerkale.html"))
-    # print(res)
