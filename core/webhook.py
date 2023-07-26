@@ -54,7 +54,8 @@ async def on_startup(_) -> None:
 
 
 async def on_shutdown(_) -> None:
-    await bot.session.close()
+    session_ = await bot.get_session()
+    await session_.close()
 
 
 if __name__ == '__main__':
