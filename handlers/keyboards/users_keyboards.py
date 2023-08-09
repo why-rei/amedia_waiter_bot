@@ -1,6 +1,6 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
 
-from data.config import DAYS, FIND_BTNS
+from data.config import DAYS, FIND_BTNS, BTN_BACK, BTN_UPDATE
 from databases import PostgresUsers
 
 
@@ -32,7 +32,7 @@ class UsersKeyboards:
         for fav in user_faves:
             anime = fav[0].anime
             fav_kb_.add(InlineKeyboardButton(anime.name, callback_data=f'anime_{anime.id}'))
-        fav_kb_.add(InlineKeyboardButton('Обновить', callback_data='fav_update'))
+        fav_kb_.add(InlineKeyboardButton(BTN_UPDATE, callback_data='fav_update'))
         return fav_kb_
 
     @staticmethod
@@ -46,7 +46,7 @@ class UsersKeyboards:
         last_kb_ = InlineKeyboardMarkup(row_width=2)
         b_right = InlineKeyboardButton('->', callback_data=f'last_{n + 1}')
         b_left = InlineKeyboardButton('<-', callback_data=f'last_{n - 1}')
-        b_update = InlineKeyboardButton('Обновить', callback_data=f'last_1')
+        b_update = InlineKeyboardButton(BTN_UPDATE, callback_data=f'last_update')
 
         for item in last_animes:
             b_anime = InlineKeyboardButton(f'{" ".join(str(item.anime.name).split()[:4])} | {item.seria} серия',
@@ -68,7 +68,7 @@ class UsersKeyboards:
         last_animes = await PostgresUsers().get_today_animes(user_id=user_id)
 
         today_kb_ = InlineKeyboardMarkup(row_width=1)
-        b_update = InlineKeyboardButton('Обновить', callback_data=f'today_')
+        b_update = InlineKeyboardButton(BTN_UPDATE, callback_data=f'today_')
 
         for item in last_animes:
             b_anime = InlineKeyboardButton(f'{" ".join(str(item.anime.name).split()[:3])} | '
@@ -84,7 +84,7 @@ class UsersKeyboards:
         last_animes = await PostgresUsers().get_ants_animes(user_id=user_id)
 
         today_kb_ = InlineKeyboardMarkup(row_width=1)
-        b_update = InlineKeyboardButton('Обновить', callback_data=f'ants_')
+        b_update = InlineKeyboardButton(BTN_UPDATE, callback_data=f'ants_')
 
         for item in last_animes:
             b_anime = InlineKeyboardButton(f'{item.anime.name}', callback_data=f'anime_{item.anime_id}')
@@ -126,7 +126,7 @@ class UsersKeyboards:
         else:
             timetable_day_kb_.row(b_left, b_right)
 
-        timetable_day_kb_.add(InlineKeyboardButton('--Назад--', callback_data='timetable_back'))
+        timetable_day_kb_.add(InlineKeyboardButton(BTN_BACK, callback_data='timetable_back'))
 
         return timetable_day_kb_
 

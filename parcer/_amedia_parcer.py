@@ -122,10 +122,3 @@ class AmediaParcer:
                     timetable_list.append(TimetableAnimes(anime_url, anime_day, anime_time))
 
             return timetable_list
-
-
-if __name__ == '__main__':
-    import asyncio
-
-    r = asyncio.run(AmediaParcer().parce_home())
-    print(r)

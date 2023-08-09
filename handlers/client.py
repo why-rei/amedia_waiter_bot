@@ -6,7 +6,7 @@ from aiogram.types import Message, CallbackQuery
 from aiogram.utils.exceptions import MessageNotModified
 from loguru import logger
 
-from data.config import DAYS, FIND_MSGS, HELP_MESSAGE, HELP_ADD_MESSAGE, DONATE_MESSAGE
+from data.config import DAYS, FIND_MSGS, HELP_MESSAGE, HELP_ADD_MESSAGE, DONATE_MESSAGE, ARROW
 from handlers.keyboards import UsersKeyboards, help_keyboard
 from databases import PostgresUsers
 from data import START_MESSAGE
@@ -24,6 +24,7 @@ async def start_command(message: Message) -> None:
     user_id = message.from_user.id
     await PostgresUsers().mark_user(user_id=user_id)
     await message.answer(START_MESSAGE, reply_markup=await UsersKeyboards.main_kb())
+    await message.delete()
 
     logger.info(user_id)
 
@@ -33,6 +34,7 @@ async def help_command(message: Message) -> None:
     user_id = message.from_user.id
     await PostgresUsers().mark_user(user_id=user_id)
     await message.answer(HELP_MESSAGE, reply_markup=await help_keyboard(), disable_web_page_preview=True)
+    await message.delete()
 
     logger.info(user_id)
 
@@ -40,7 +42,8 @@ async def help_command(message: Message) -> None:
 @logger.catch
 async def fav_command(message: Message) -> None:
     user_id = message.from_user.id
-    await message.answer('Избранное:', reply_markup=await UsersKeyboards.fav_kb(user_id=user_id))
+    await message.answer(f'{ARROW} Избранное', reply_markup=await UsersKeyboards.fav_kb(user_id=user_id))
+    await message.delete()
 
     logger.info(user_id)
 
@@ -48,7 +51,8 @@ async def fav_command(message: Message) -> None:
 @logger.catch
 async def lasts_command(message: Message) -> None:
     user_id = message.from_user.id
-    await message.answer('Последние:', reply_markup=await UsersKeyboards.last_kb(user_id=user_id))
+    await message.answer(f'{ARROW} Последние', reply_markup=await UsersKeyboards.last_kb(user_id=user_id))
+    await message.delete()
 
     logger.info(user_id)
 
@@ -56,7 +60,8 @@ async def lasts_command(message: Message) -> None:
 @logger.catch
 async def today_command(message: Message) -> None:
     user_id = message.from_user.id
-    await message.answer('Сегодня:', reply_markup=await UsersKeyboards.today_kb(user_id=user_id))
+    await message.answer(f'{ARROW} Сегодня', reply_markup=await UsersKeyboards.today_kb(user_id=user_id))
+    await message.delete()
 
     logger.info(user_id)
 
@@ -64,7 +69,8 @@ async def today_command(message: Message) -> None:
 @logger.catch
 async def ants_command(message: Message) -> None:
     user_id = message.from_user.id
-    await message.answer('Анонсы:', reply_markup=await UsersKeyboards.ants_kb(user_id=user_id))
+    await message.answer(f'{ARROW} Анонсы', reply_markup=await UsersKeyboards.ants_kb(user_id=user_id))
+    await message.delete()
 
     logger.info(user_id)
 
@@ -72,7 +78,8 @@ async def ants_command(message: Message) -> None:
 @logger.catch
 async def timetable_command(message: Message) -> None:
     user_id = message.from_user.id
-    await message.answer('Расписание:', reply_markup=await UsersKeyboards.timetable_kb(user_id=user_id))
+    await message.answer(f'{ARROW} Расписание', reply_markup=await UsersKeyboards.timetable_kb(user_id=user_id))
+    await message.delete()
 
     logger.info(user_id)
 
@@ -80,7 +87,8 @@ async def timetable_command(message: Message) -> None:
 @logger.catch
 async def find_command(message: Message) -> None:
     user_id = message.from_user.id
-    await message.answer('[--Поиск--]', reply_markup=await UsersKeyboards.find_start_kb(user_id=user_id))
+    await message.answer(FIND_MSGS['default'], reply_markup=await UsersKeyboards.find_start_kb(user_id=user_id))
+    await message.delete()
 
     logger.info(user_id)
 
@@ -121,6 +129,7 @@ async def help_callback(callback: CallbackQuery) -> None:
                                         reply_markup=await UsersKeyboards.main_kb())
 
     elif req == 'donate':
+        await callback.answer(cache_time=2)
         await callback.bot.send_message(callback.message.chat.id, DONATE_MESSAGE)
 
 
@@ -183,6 +192,7 @@ async def fav_callback(callback: CallbackQuery) -> None:
             await callback.message.edit_reply_markup(reply_markup=await UsersKeyboards.fav_kb(user_id=user_id))
         except MessageNotModified:
             pass
+        await callback.answer('Обновлено')
 
     await callback.answer(cache_time=2)
 
@@ -192,12 +202,23 @@ async def fav_callback(callback: CallbackQuery) -> None:
 async def lasts_callback(callback: CallbackQuery) -> None:
     user_id = callback.from_user.id
     req = callback.data.split('_')[1]
+
     if req.isdigit():
         try:
             await callback.message.edit_reply_markup(
                 reply_markup=await UsersKeyboards.last_kb(user_id=user_id, n=int(req)))
         except MessageNotModified:
-            await callback.answer(cache_time=2)
+            pass
+
+    elif req == 'update':
+        try:
+            await callback.message.edit_reply_markup(
+                reply_markup=await UsersKeyboards.last_kb(user_id=user_id, n=1))
+        except MessageNotModified:
+            pass
+
+        await callback.answer('Обновлено')
+        await callback.answer(cache_time=2)
 
     logger.info(f'{user_id} : {req=}')
 
@@ -208,7 +229,10 @@ async def today_callback(callback: CallbackQuery) -> None:
     try:
         await callback.message.edit_reply_markup(reply_markup=await UsersKeyboards.today_kb(user_id=user_id))
     except MessageNotModified:
-        await callback.answer(cache_time=2)
+        pass
+
+    await callback.answer('Обновлено')
+    await callback.answer(cache_time=2)
 
     logger.info(user_id)
 
@@ -219,7 +243,10 @@ async def ants_callback(callback: CallbackQuery) -> None:
     try:
         await callback.message.edit_reply_markup(reply_markup=await UsersKeyboards.ants_kb(user_id=user_id))
     except MessageNotModified:
-        await callback.answer(cache_time=2)
+        pass
+
+    await callback.answer('Обновлено')
+    await callback.answer(cache_time=2)
 
     logger.info(user_id)
 
@@ -231,7 +258,7 @@ async def timetable_callback(callback: CallbackQuery) -> None:
 
     if req.isdigit():
         try:
-            await callback.message.edit_text(f'{DAYS[int(req)][1]}:',
+            await callback.message.edit_text(f'{ARROW} {DAYS[int(req)][1]}',
                                              reply_markup=await UsersKeyboards.timetable_day_kb(user_id=user_id,
                                                                                                 day=req))
         except MessageNotModified:
@@ -251,15 +278,16 @@ async def timetable_callback(callback: CallbackQuery) -> None:
                     day_count = day
                     timetable_str += f'\n\n{DAYS[day][1]}:{anime_str}'
 
-            await callback.message.edit_text(f'Все расписание:\n{timetable_str}',
+            await callback.message.edit_text(f'{ARROW} Все расписание\n\n{timetable_str}',
                                              reply_markup=await UsersKeyboards.timetable_kb(user_id=user_id))
         except MessageNotModified:
             req += '_close'
-            await callback.message.edit_text('Расписание:',
+            await callback.message.edit_text(f'{ARROW} Расписание',
                                              reply_markup=await UsersKeyboards.timetable_kb(user_id=user_id))
 
     elif req == 'back':
-        await callback.message.edit_text('Расписание:', reply_markup=await UsersKeyboards.timetable_kb(user_id=user_id))
+        await callback.message.edit_text(f'{ARROW} Расписание',
+                                         reply_markup=await UsersKeyboards.timetable_kb(user_id=user_id))
 
     await callback.answer(cache_time=2)
 
