@@ -99,9 +99,13 @@ async def finding_anime(message: Message, state: FSMContext) -> None:
     await state.update_data(anime_name=message.text)
     user_data = await state.get_data()
     user_req = user_data["anime_name"]
-    await message.answer(FIND_MSGS['found'],
-                         reply_markup=await UsersKeyboards.find_animes_kb(user_id=user_id, user_req=user_req))
     await state.finish()
+    if user_req and 1 <= len(user_req) <= 30:
+        await message.answer(FIND_MSGS['found'],
+                             reply_markup=await UsersKeyboards.find_animes_kb(user_id=user_id, user_req=user_req))
+    else:
+        await message.answer(FIND_MSGS['found'] + '\n\nНекорректный запрос, макс. длина 30 символов!',
+                             reply_markup=await UsersKeyboards.find_animes_kb(user_id=user_id, user_req=''))
 
     logger.info(f'{user_id} : {user_req=}')
 

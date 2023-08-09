@@ -53,18 +53,18 @@ class NoticeSys:
                         await bot.send_photo(chat_id=user_id, photo=anime.photo_url, caption=notice_msg,
                                              reply_markup=await NoticesKeyboards.notice_kb(anime_url=anime.link))
 
-                        await MongoNotice.set_user_got(_id=_id, user_id=user_id)
+                        await MongoNotice().set_user_got(_id=_id, user_id=user_id)
                         await PostgresUsers().mark_user(user_id=user_id)
                     except Unauthorized:
-                        await MongoNotice.set_user_got(_id=_id, user_id=user_id)
+                        await MongoNotice().set_user_got(_id=_id, user_id=user_id)
 
     async def _send_notices(self):
-        notices = await MongoNotice.get_notices()
+        notices = await MongoNotice().get_notices()
         if notices:
             async for notice in notices:
                 await self._send_notice(notice=notice)
                 await PostgresNotice.turn_notice_checker(notice_id=notice['notice_id'])
-                await MongoNotice.delete_notice(_id=notice['_id'])
+                await MongoNotice().delete_notice(_id=notice['_id'])
 
     async def notice(self):
         await self._update_notice_table()

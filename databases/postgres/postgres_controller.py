@@ -134,14 +134,6 @@ class PostgresUsers:
             timetable_animes = db_response.all()
             return timetable_animes
 
-    async def find_animes(self, user_id: int, user_req: str) -> List[Type[Animes]]:
-        async with Async_Session() as session, session.begin():
-            await self._update_user(session=session, user_id=user_id)
-
-            stmt = select(Animes).filter(Animes.name.ilike(f'%{user_req}%')).order_by(Animes.name)
-            animes = await session.execute(stmt)
-            return animes.all()
-
 
 class PostgresParcer:
     @staticmethod

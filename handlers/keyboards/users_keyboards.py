@@ -1,7 +1,7 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
 
 from data.config import DAYS, FIND_BTNS, BTN_BACK, BTN_UPDATE
-from databases import PostgresUsers
+from databases import PostgresUsers, MongoAnimes
 
 
 class UsersKeyboards:
@@ -150,9 +150,11 @@ class UsersKeyboards:
     @staticmethod
     async def find_animes_kb(user_id: int, user_req: str) -> InlineKeyboardMarkup:
         find_animes_kb_ = InlineKeyboardMarkup(row_width=1)
-        found_animes = await PostgresUsers().find_animes(user_id=user_id, user_req=user_req)
+        await PostgresUsers().mark_user(user_id=user_id)
+        found_animes = await MongoAnimes().find_animes(req=user_req)
         for item in found_animes:
-            anime = item[0]
-            find_animes_kb_.add(InlineKeyboardButton(anime.name, callback_data=f'anime_{anime.id}'))
+            anime_id = item[0]
+            anime_name = item[1]
+            find_animes_kb_.add(InlineKeyboardButton(anime_name, callback_data=f'anime_{anime_id}'))
         find_animes_kb_.add(InlineKeyboardButton(FIND_BTNS['retry'], callback_data='find_start'))
         return find_animes_kb_

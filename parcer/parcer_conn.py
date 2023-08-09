@@ -2,7 +2,7 @@ from collections import namedtuple
 from typing import Type, List, Sequence
 
 from ._amedia_parcer import AmediaParcer
-from databases import PostgresParcer
+from databases import PostgresParcer, MongoAnimes
 
 
 class ParcerConn:
@@ -27,6 +27,7 @@ class ParcerConn:
     async def _push_anime(self, anime_url: str) -> None:
         pk, name, info, desc, photo_url, url = await self._get_anime(anime_url=anime_url)
         await PostgresParcer().add_anime(pk=pk, name=name, info=info, desc=desc, photo_url=photo_url, url=url)
+        await MongoAnimes().add_anime(anime_id=pk, anime_name=name)
 
     async def _initialize_animes(self, animes: Sequence[Type[namedtuple]], animes_ids: List[int]):
         unidentified_indexes = await PostgresParcer().check_animes_ids(animes_ids=animes_ids)

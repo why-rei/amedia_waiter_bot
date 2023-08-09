@@ -1,25 +1,51 @@
+import pprint
 from datetime import datetime
-from typing import List, Type
+from typing import List, Type, Tuple, Any
 
 from motor import motor_asyncio
 from motor.motor_asyncio import AsyncIOMotorCursor
 from bson import ObjectId
 
-client = motor_asyncio.AsyncIOMotorClient('localhost', 27017)
-db = client.mongo
-collection = db.notice
+CLIENT = motor_asyncio.AsyncIOMotorClient('localhost', 27017)
+DB = CLIENT.mongo
+
+
+class MongoAnimes:
+    collection = DB.animes
+
+    async def _check_anime(self, anime_id: int) -> int:
+        check = await self.collection.count_documents({'anime_id': anime_id})
+        return check
+
+    async def add_anime(self, anime_id: int, anime_name: str) -> None:
+        if not await self._check_anime(anime_id=anime_id):
+            await self.collection.insert_one(
+                {
+                    'anime_id': anime_id,
+                    'anime_name': anime_name
+                }
+            )
+
+    async def find_animes(self, req: str) -> list[Any]:
+        anime_items = []
+        if req:
+            async for item in self.collection.find({"anime_name": {"$regex": f'(?i:{req})'}}):
+                anime_items.append((item['anime_id'], item['anime_name']))
+
+        return anime_items
 
 
 class MongoNotice:
-    @staticmethod
-    async def _check_notice(anime_id: int, anime_seria: str) -> int:
-        check = await collection.count_documents({'anime_id': anime_id, 'anime_seria': anime_seria})
+    collection = DB.notice
+
+    async def _check_notice(self, anime_id: int, anime_seria: str) -> int:
+        check = await self.collection.count_documents({'anime_id': anime_id, 'anime_seria': anime_seria})
         return check
 
     async def create_notice(self, notice_id: int, anime_id: int, anime_seria: str, users: List[int]) -> None:
         check = await self._check_notice(anime_id=anime_id, anime_seria=anime_seria)
         if not check:
-            await collection.insert_one(
+            await self.collection.insert_one(
                 {
                     'date_time': datetime.now(),
                     'notice_id': notice_id,
@@ -29,19 +55,16 @@ class MongoNotice:
                 }
             )
 
-    @staticmethod
-    async def get_notices() -> Type[AsyncIOMotorCursor]:
-        if collection.count_documents({}):
-            notices = collection.find({})
+    async def get_notices(self) -> Type[AsyncIOMotorCursor]:
+        if self.collection.count_documents({}):
+            notices = self.collection.find({})
             return notices
 
-    @staticmethod
-    async def set_user_got(_id: str, user_id: int, user_got: int = 1) -> None:
-        await collection.update_one({'_id': ObjectId(_id), 'users.user_id': user_id},
-                                    {'$set': {'users.$.got': user_got}})
+    async def set_user_got(self, _id: str, user_id: int, user_got: int = 1) -> None:
+        await self.collection.update_one({'_id': ObjectId(_id), 'users.user_id': user_id},
+                                         {'$set': {'users.$.got': user_got}})
 
-    @staticmethod
-    async def delete_notice(_id: str) -> None:
-        got_check = await collection.find_one({'_id': _id, 'users.got': 0})
+    async def delete_notice(self, _id: str) -> None:
+        got_check = await self.collection.find_one({'_id': _id, 'users.got': 0})
         if not got_check:
-            await collection.delete_one({"_id": ObjectId(_id)})
+            await self.collection.delete_one({"_id": ObjectId(_id)})

@@ -1,1 +1,1 @@
-from .mongo_controller import MongoNotice
+from .mongo_controller import MongoNotice, MongoAnimes
