@@ -148,8 +148,9 @@ class PostgresParcer:
     @staticmethod
     async def add_anime(pk: int, name: str, desc: str, info: str, photo_url: str, url: str) -> None:
         async with Async_Session() as session, session.begin():
-            anime = Animes(id=pk, name=name, desc=desc, info=info, photo_url=photo_url, link=url)
-            session.add(anime)
+            if not await session.get(Animes, pk):
+                anime = Animes(id=pk, name=name, desc=desc, info=info, photo_url=photo_url, link=url)
+                session.add(anime)
 
     @staticmethod
     def _truncate_table(session, table_name):
