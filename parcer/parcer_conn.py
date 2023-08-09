@@ -62,13 +62,16 @@ class ParcerConn:
 
     async def update_main(self) -> None:
         last_animes, today_animes = await AmediaParcer().parce_home()
-        await self._allocation_animes(animes=last_animes)
-        await self._allocation_animes(animes=today_animes)
+        if last_animes and today_animes:
+            await self._allocation_animes(animes=last_animes)
+            await self._allocation_animes(animes=today_animes)
 
     async def update_ants(self) -> None:
         ants = await AmediaParcer().parce_ants()
-        await self._allocation_animes(animes=ants)
+        if ants:
+            await self._allocation_animes(animes=ants)
 
     async def update_timetable(self) -> None:
         timetable = await AmediaParcer().parce_timetable()
-        await self._allocation_animes(animes=timetable)
+        if timetable:
+            await self._allocation_animes(animes=timetable)
