@@ -1,5 +1,4 @@
 from collections import namedtuple
-from datetime import datetime
 
 from aiogram.utils.exceptions import Unauthorized
 
@@ -38,16 +37,8 @@ class NoticeSys:
                                               anime_seria=anime_seria, users=users)
 
     @staticmethod
-    async def check_notice_datetime(date_time: datetime):
-        # delta_time = datetime.now() - date_time
-        # print(delta_time.seconds)
-        pass
-
-    async def _send_notice(self, notice: dict):
+    async def _send_notice(notice: dict):
         _id = notice['_id']
-
-        # date_time = notice['date_time']
-        # await self.check_notice_datetime(date_time=date_time)
 
         anime_id = notice['anime_id']
         anime_seria = notice['anime_seria']
