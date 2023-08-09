@@ -13,6 +13,7 @@ from data import START_MESSAGE
 
 
 class AnimeFind(StatesGroup):
+    cb_msg = State()
     anime_name = State()
 
 
@@ -98,10 +99,13 @@ async def finding_anime(message: Message, state: FSMContext) -> None:
     user_id = message.from_user.id
     await state.update_data(anime_name=message.text)
     user_data = await state.get_data()
+    cb_msg = user_data['cb_msg']
     user_req = user_data["anime_name"]
     await state.finish()
+    await cb_msg.delete()
+    await message.delete()
     if user_req and 1 <= len(user_req) <= 30:
-        await message.answer(FIND_MSGS['found'],
+        await message.answer(FIND_MSGS['found'] + f'по запросу: "{user_req}"',
                              reply_markup=await UsersKeyboards.find_animes_kb(user_id=user_id, user_req=user_req))
     else:
         await message.answer(FIND_MSGS['found'] + '\n\nНекорректный запрос, макс. длина 30 символов!',
@@ -304,6 +308,9 @@ async def find_callback(callback: CallbackQuery, state: FSMContext) -> None:
     req = callback.data.split('_')[1]
 
     if req == 'start':
+        await AnimeFind.cb_msg.set()
+        await state.update_data(cb_msg=callback.message)
+
         await AnimeFind.anime_name.set()
         try:
             await callback.message.edit_text(FIND_MSGS['finding'],
