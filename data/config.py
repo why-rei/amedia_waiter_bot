@@ -1,7 +1,23 @@
 USER_FAV_LIMIT = 30
 
 START_MESSAGE = 'Добавь аниме в избранное и получи уведомление как только оно появится на сайте ' \
-                'Amedia.online, по любым вопросам - @new_try'
+                'Amedia.online\n/help - если нужна помощь\nпо любым вопросам - @new_try'
+
+HELP_MESSAGE = """
+Бот разработан whyREI
+GitHub: https://github.com/whyREI
+Страница проекта: https://github.com/whyREI/amedia_waiter_bot
+
+@whyAnime - Группа для общения по аниме тематике, а также публикации обновлений бота
+
+FAQ:
+"""
+
+HELP_ADD_MESSAGE = """
+Как добавить аниме:
+"""
+
+DONATE_MESSAGE = """[Донат]\nПозже будут реквизиты"""
 
 DAYS = {
     0: ('ПН', 'Понедельник'),
