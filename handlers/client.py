@@ -196,9 +196,15 @@ async def ants_callback(callback: CallbackQuery) -> None:
 async def timetable_callback(callback: CallbackQuery) -> None:
     user_id = callback.from_user.id
     req = callback.data.split('_')[1]
+
     if req.isdigit():
-        await callback.message.edit_text(f'{DAYS[int(req)][1]}:',
-                                         reply_markup=await UsersKeyboards.timetable_day_kb(user_id=user_id, day=req))
+        try:
+            await callback.message.edit_text(f'{DAYS[int(req)][1]}:',
+                                             reply_markup=await UsersKeyboards.timetable_day_kb(user_id=user_id,
+                                                                                                day=req))
+        except MessageNotModified:
+            pass
+
     elif req == 'all':
         try:
             timetable_str = ''
@@ -232,14 +238,22 @@ async def timetable_callback(callback: CallbackQuery) -> None:
 async def find_callback(callback: CallbackQuery, state: FSMContext) -> None:
     user_id = callback.from_user.id
     req = callback.data.split('_')[1]
+
     if req == 'start':
         await AnimeFind.anime_name.set()
-        await callback.message.edit_text(FIND_MSGS['finding'],
-                                         reply_markup=await UsersKeyboards.find_cancel_kb(user_id=user_id))
+        try:
+            await callback.message.edit_text(FIND_MSGS['finding'],
+                                             reply_markup=await UsersKeyboards.find_cancel_kb(user_id=user_id))
+        except MessageNotModified:
+            pass
+
     elif req == 'back':
         await state.finish()
-        await callback.message.edit_text(FIND_MSGS['cancel'],
-                                         reply_markup=await UsersKeyboards.find_start_kb(user_id=user_id))
+        try:
+            await callback.message.edit_text(FIND_MSGS['cancel'],
+                                             reply_markup=await UsersKeyboards.find_start_kb(user_id=user_id))
+        except MessageNotModified:
+            pass
 
     await callback.answer(cache_time=2)
 
