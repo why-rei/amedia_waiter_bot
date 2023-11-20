@@ -37,8 +37,8 @@ class UsersKeyboards:
 
     @staticmethod
     async def last_kb(user_id: int, n: int = 1) -> InlineKeyboardMarkup:
-        count_last_animes = 12
-        count_out = 4
+        count_last_animes = 10
+        count_out = 5
         end = count_out * n + 1
         start = end - count_out
         last_animes = await PostgresUsers().get_last_animes(user_id=user_id, start=start, end=end)
