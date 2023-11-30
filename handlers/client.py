@@ -106,7 +106,7 @@ async def finding_anime(message: Message, state: FSMContext) -> None:
     await cb_msg.delete()
     await message.delete()
     if user_req and 1 <= len(user_req) <= 30:
-        await message.answer(FIND_MSGS['found'] + f'по запросу: "{user_req}"',
+        await message.answer(FIND_MSGS['found'] + f' по запросу: "{user_req}"',
                              reply_markup=await UsersKeyboards.find_animes_kb(user_id=user_id, user_req=user_req))
     else:
         await message.answer(FIND_MSGS['found'] + '\n\nНекорректный запрос, макс. длина 30 символов!',

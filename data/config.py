@@ -62,4 +62,4 @@ FIND_BTNS = {
     'retry': '↻ Искать еще ↻',
 }
 
-NOTICE_MSG = 'Вышла {anime_seria} серия «{anime_name}»'
+NOTICE_MSG = 'Вышла {anime_seria} серия «{anime_name}»\n➥ Заходи в чат - @whyAnime'
