@@ -13,7 +13,7 @@ HEADERS = {
 
 
 class AmediaParcer:
-    url = 'https://animedia.online'
+    url = 'https://amedia.site/'
 
     @staticmethod
     async def get_page(url: str) -> BeautifulSoup:
