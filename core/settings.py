@@ -7,6 +7,8 @@ from dotenv import load_dotenv
 # Load .env
 load_dotenv()
 
+SITE_URL = "https://amedia.site"
+
 POSTGRES_CONN = os.getenv('POSTGRES_CONN')
 
 # Webhook settings

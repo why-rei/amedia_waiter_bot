@@ -4,6 +4,8 @@ from collections import namedtuple
 import requests
 from bs4 import BeautifulSoup
 
+from core.settings import SITE_URL
+
 
 HEADERS = {
     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)'
@@ -13,7 +15,7 @@ HEADERS = {
 
 
 class AmediaParcer:
-    url = 'https://amedia.site'
+    url = SITE_URL
 
     @staticmethod
     async def get_page(url: str) -> BeautifulSoup:
