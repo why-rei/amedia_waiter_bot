@@ -46,11 +46,11 @@ class AmediaParcer:
                 anime_info.append(item.text)
             anime_info = ' | '.join(anime_info)
 
-            anime_photo_url = 'https://amedia.online' + soup.find('div', class_='pmovie__img').find_next('img').get('src')
+            anime_photo_url = soup.find('div', class_='pmovie__img').find_next('img').get('src')
 
             Anime = namedtuple('Anime', 'id name info desc photo_url url')
 
-            return Anime(int(anime_id), anime_name, anime_info, anime_desc, anime_photo_url, anime_url)
+            return Anime(int(anime_id), anime_name, anime_info, anime_desc, anime_photo_url, anime_url.split('/')[-1])
 
     async def _parce_last(self, soup_section: BeautifulSoup) -> List[Type[namedtuple]]:
         soup_last_animes = soup_section.find_all('a', class_='ftop-item')

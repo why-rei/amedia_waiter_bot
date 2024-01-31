@@ -3,7 +3,6 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMar
 from data.config import DAYS, FIND_BTNS, BTN_BACK, BTN_UPDATE
 from databases import PostgresUsers, MongoAnimes
 
-
 class UsersKeyboards:
     @staticmethod
     async def main_kb() -> ReplyKeyboardMarkup:

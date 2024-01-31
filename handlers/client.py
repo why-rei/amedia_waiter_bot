@@ -10,6 +10,7 @@ from data.config import DAYS, FIND_MSGS, HELP_MESSAGE, HELP_ADD_MESSAGE, DONATE_
 from handlers.keyboards import UsersKeyboards, help_keyboard
 from databases import PostgresUsers
 from data import START_MESSAGE
+from core.settings import SITE_URL
 
 
 class AnimeFind(StatesGroup):
@@ -147,10 +148,10 @@ async def anime_callback(callback: CallbackQuery) -> None:
     user_id = callback.from_user.id
     anime_id = int(callback.data.split('_')[1])
     anime, user_fav_check = await PostgresUsers().get_anime_view(anime_id=anime_id, user_id=user_id)
-    await callback.message.answer_photo(anime.photo_url, f'{anime.name}\n\n{anime.info}\n\n{anime.desc}',
+    await callback.message.answer_photo(SITE_URL + anime.photo_url, f'{anime.name}\n\n{anime.info}\n\n{anime.desc}',
                                         reply_markup=await UsersKeyboards.anime_kb(anime_id=anime_id,
                                                                                    user_fav_check=user_fav_check,
-                                                                                   url=anime.link))
+                                                                                   url=SITE_URL + '/' + anime.link))
     await callback.answer(cache_time=2)
 
     logger.info(f'{user_id} : {anime_id=} name="{anime.name[:10]}"')
@@ -185,7 +186,7 @@ async def anime_fav_callback(callback: CallbackQuery) -> None:
         user_faves = await PostgresUsers().get_user_faves(user_id=user_id)
         user_fav_check = 1 if anime_id in [x[0].anime_id for x in user_faves] else 0
         await callback.message.edit_reply_markup(reply_markup=await UsersKeyboards.anime_kb(
-            anime_id=anime_id, user_fav_check=user_fav_check, url=anime.link))
+            anime_id=anime_id, user_fav_check=user_fav_check, url=SITE_URL + '/' + anime.link))
     except MessageNotModified:
         pass
 
