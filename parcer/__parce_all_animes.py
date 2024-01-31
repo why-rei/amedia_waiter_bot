@@ -5,6 +5,7 @@ import requests
 from bs4 import BeautifulSoup
 
 from parcer import ParcerConn
+from core.settings import SITE_URL
 
 HEADERS = {
     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)'
@@ -12,7 +13,7 @@ HEADERS = {
     'accept': '*/*'
 }
 
-ANIMES_URL = 'https://amedia.online/anime/page/'
+ANIMES_URL = SITE_URL + '/page/'
 
 
 def get_page(url: str) -> BeautifulSoup:
@@ -26,17 +27,17 @@ def get_page(url: str) -> BeautifulSoup:
 
 def get_count_pages(soup) -> int:
     if soup:
-        r = soup.find('div', id='dle-content').find_next('div', class_='bottom-nav'). \
-            find_next('span', class_='navigation').find_all('a')[-1].text
+        r = soup.find('div', id='dle-content').find_next('div', id='pagination').\
+            find_all('a')[-2].get('href').split('/')[-2]
         return int(r)
 
 
 async def parce_page(page_num: int):
     page_url = ANIMES_URL + str(page_num)
     page_soup = get_page(page_url)
-    animes_items = page_soup.find('div', id='dle-content').find_all('div', class_='c1-item')
+    animes_items = page_soup.find('div', id='dle-content').find_all('div', class_='poster')
     for anime_item in animes_items:
-        anime_url = anime_item.find_next('a').get('href')
+        anime_url = anime_item.find_next('a', class_='poster__link').get('href')
         await ParcerConn()._push_anime(anime_url=anime_url)
 
         print(f'[INFO]\t{page_num=}\t:\t{anime_url=}')
