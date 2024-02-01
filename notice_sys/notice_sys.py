@@ -50,7 +50,7 @@ class NoticeSys:
                     user_id = user['user_id']
                     notice_msg = NOTICE_MSG.format(anime_seria=anime_seria, anime_name=anime.name)
                     try:
-                        await bot.send_photo(chat_id=user_id, photo=anime.photo_url, caption=notice_msg,
+                        await bot.send_photo(chat_id=user_id, photo=SITE_URL + '/' + anime.photo_url, caption=notice_msg,
                                              reply_markup=await NoticesKeyboards.notice_kb(anime_url=SITE_URL + '/' + anime.link))
 
                         await MongoNotice().set_user_got(_id=_id, user_id=user_id)
