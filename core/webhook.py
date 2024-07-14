@@ -20,7 +20,7 @@ async def main() -> None:
 
 async def secondary() -> None:
     try:
-        # await ParcerConn().update_ants()
+        await ParcerConn().update_ants()
         await ParcerConn().update_timetable()
     except Exception as e:
         logger.exception(e)

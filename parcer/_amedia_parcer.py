@@ -91,13 +91,13 @@ class AmediaParcer:
             return last_animes, today_animes
 
     async def parce_ants(self) -> List[Type[namedtuple]]:
-        ants_url = self.url + 'anime-kotoroe-skoro-vyydet/'
+        ants_url = self.url + '/anonsy'
         soup = await self.get_page(ants_url)
         if soup:
-            ants_animes = soup.find('div', class_='middle-wr').find_all('div', class_='c1-item')
+            ants_animes = soup.find('div', id='dle-content').find_all('div', class_='poster')
             ants_list = []
             for anime in ants_animes:
-                anime_url = anime.find_next('a').get('href')
+                anime_url = anime.find_next('a', class_='poster__link').get('href')
 
                 AntAnime = namedtuple('AntAnime', 'url')
                 ants_list.append(AntAnime(anime_url))

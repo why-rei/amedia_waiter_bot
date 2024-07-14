@@ -71,8 +71,7 @@ async def today_command(message: Message) -> None:
 @logger.catch
 async def ants_command(message: Message) -> None:
     user_id = message.from_user.id
-    # await message.answer(f'{ARROW} Анонсы', reply_markup=await UsersKeyboards.ants_kb(user_id=user_id))
-    await message.answer('Если анонсы появятся на сайте, то и здесь тоже будут')
+    await message.answer(f'{ARROW} Анонсы', reply_markup=await UsersKeyboards.ants_kb(user_id=user_id))
     await message.delete()
 
     logger.info(user_id)
@@ -360,6 +359,6 @@ async def register_handlers_client(dp: Dispatcher) -> None:
 
     dp.register_callback_query_handler(lasts_callback, Text(startswith='last_'))
     dp.register_callback_query_handler(today_callback, Text(startswith='today_'))
-    # dp.register_callback_query_handler(ants_callback, Text(startswith='ants_'))
+    dp.register_callback_query_handler(ants_callback, Text(startswith='ants_'))
     dp.register_callback_query_handler(timetable_callback, Text(startswith='timetable_'))
     dp.register_callback_query_handler(find_callback, Text(startswith='find_'), state='*')
