@@ -11,16 +11,6 @@ START_MESSAGE = f"""
 """
 
 HELP_MESSAGE = """
-┌──────────────────────┐
-   Бот разработан whyREI
-   GitHub: https://github.com/whyREI
-└──────────────────────┘
-
-Группа для общения по аниме тематике, а также публикации обновлений бота:
-╭────♡────╮
-     @whyAnime
-╰─────────╯
-
 FAQ:
 """
 
@@ -36,7 +26,6 @@ HELP_ADD_MESSAGE = """
 DONATE_MESSAGE = """
 ⧼ Донат ⧽
 
-☛ MetaMask: https://metamask.app.link/send/0xeCEedC62f86Fc99b6D8D20aA01d94FBd8E869abf
 """
 
 DAYS = {
@@ -62,4 +51,4 @@ FIND_BTNS = {
     'retry': '↻ Искать еще ↻',
 }
 
-NOTICE_MSG = 'Вышла {anime_seria} серия «{anime_name}»\n➥ Заходи в чат - @whyAnime'
+NOTICE_MSG = 'Вышла {anime_seria} серия «{anime_name}»'
